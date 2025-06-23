@@ -1,13 +1,10 @@
 import dotenv from "dotenv";
+import app from "./app.js";
+import db from "./models/database.js";
 dotenv.config();
-import express from "express";
-import database from "./models/database.js";
-
-const app = express();
 
 const main = async () => {
   try {
-    database.sequelize.authenticate();
     app.listen(process.env.PORT || 3000, () => {
       console.log("Server listening on port", process.env.PORT);
     });
@@ -15,9 +12,5 @@ const main = async () => {
     console.error(error);
   }
 };
-
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
 
 main();
