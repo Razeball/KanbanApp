@@ -13,7 +13,7 @@ export async function up(queryInterface, Sequelize) {
       allowNull: false,
     },
     userId: {
-      type: DataTypes.STRING,
+      type: Sequelize.UUID,
       allowNull: false,
     },
     createdAt: {

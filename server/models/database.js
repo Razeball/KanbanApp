@@ -2,6 +2,9 @@ import dotenv from "dotenv";
 import Sequelize from "sequelize";
 import configFile from "../config/config.js";
 import User from "./user.js";
+import Board from "./board.js";
+import List from "./list.js";
+import Card from "./card.js";
 
 dotenv.config();
 
@@ -23,6 +26,9 @@ if (config.use_env_variable) {
 }
 
 db.User = User.init(sequelize, Sequelize.DataTypes);
+db.Board = Board.init(sequelize, Sequelize.DataTypes);
+db.List = List.init(sequelize, Sequelize.DataTypes);
+db.Card = Card.init(sequelize, Sequelize.DataTypes);
 
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {

@@ -21,7 +21,7 @@ export async function up(queryInterface, Sequelize) {
       allowNull: false,
     },
     listId: {
-      type: DataTypes.STRING,
+      type: Sequelize.UUID,
       allowNull: false,
     },
     createdAt: {

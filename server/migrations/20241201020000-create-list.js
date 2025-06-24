@@ -17,7 +17,7 @@ export async function up(queryInterface, Sequelize) {
       allowNull: false,
     },
     boardId: {
-      type: DataTypes.STRING,
+      type: Sequelize.UUID,
       allowNull: false,
     },
     createdAt: {
