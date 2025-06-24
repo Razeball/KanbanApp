@@ -1,4 +1,5 @@
 import { Strategy as localStrategy } from "passport-local";
+import { ExtractJwt, Strategy as jwtStrategy } from "passport-jwt";
 import passport from "passport";
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
@@ -31,4 +32,27 @@ passport.use(
     }
   )
 );
+
+const opt = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET,
+};
+
+passport.use(
+  new jwtStrategy(opt, async (jwt_payload, done) => {
+    try {
+      const foundUser = await User.findOne({
+        where: { id: jwt_payload.id },
+      });
+      if (foundUser) {
+        return done(null, foundUser);
+      } else {
+        return done(null, false);
+      }
+    } catch (error) {
+      done(error);
+    }
+  })
+);
+
 export default passport;

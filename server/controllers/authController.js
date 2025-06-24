@@ -1,7 +1,6 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import passport from "passport";
-import passportCheck from "../config/passportConfig.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
@@ -67,4 +66,9 @@ export const login = (req, res, next) => {
       .status(500)
       .json({ message: "An error has occured", details: error.message });
   }
+};
+
+export const getProfile = (req, res) => {
+  const { email, username, id } = req.user;
+  return res.status(200).json({ id, email, username });
 };
