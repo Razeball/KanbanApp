@@ -42,7 +42,13 @@ export const getBoardById = async (req, res) => {
   try {
     const board = await Board.findOne({
       where: { id: boardId, userId },
-      include: [{ model: List, include: [{ model: Card }] }],
+      include: [
+        {
+          model: List,
+          order: [["order", "ASC"]],
+          include: [{ model: Card, order: [["order", "ASC"]] }],
+        },
+      ],
     });
     if (!board) {
       return res
