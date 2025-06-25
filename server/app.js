@@ -5,6 +5,7 @@ import passport from "passport";
 import authRoutes from "./routes/authRoutes.js";
 import boardRoutes from "./routes/boardRoutes.js";
 import listRoutes from "./routes/listRoutes.js";
+import cardRoutes from "./routes/cardRoutes.js";
 
 const app = express();
 
@@ -15,5 +16,6 @@ import "./config/passportConfig.js";
 app.use("/auth", authRoutes);
 app.use("/board", boardRoutes);
 app.use("/list", listRoutes);
+app.use("/card", cardRoutes);
 
 export default app;

@@ -5,7 +5,7 @@ export const createList = async (req, res) => {
   const { boardId } = req.params;
   const { title } = req.body;
   try {
-    const board = Board.findOne({
+    const board = await Board.findOne({
       where: { id: boardId, userId: req.user.id },
     });
     if (!board)
@@ -35,6 +35,10 @@ export const updateList = async (req, res) => {
       where: { id: listId },
       include: [{ model: Board, where: { userId: req.user.id } }],
     });
+    if (list.Board.userId !== req.user.id)
+      return res
+        .status(403)
+        .json({ message: "You are unauthorized to update this list" });
     list.set({
       title,
     });
@@ -55,6 +59,10 @@ export const deleteList = async (req, res) => {
       where: { id: listId },
       include: [{ model: Board, where: { userId: req.user.id } }],
     });
+    if (!list.board || list.board.userId !== req.user.id)
+      return res
+        .status(403)
+        .json({ message: "You are unauthorized to update this list" });
     await list.destroy();
     return res.sendStatus(204);
   } catch (error) {
