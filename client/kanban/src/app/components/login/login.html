@@ -1,0 +1,54 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-900">
+    
+  <div class="bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-md border border-gray-700">
+    <div class="text-center mb-8">
+        <div class="bg-gray-700 rounded-full w-25 h-25 mx-auto flex items-start justify-center">
+          <span class="text-7xl flex items-center justify-center">🔒</span>
+        </div>
+      <h2 class="text-3xl font-bold text-white">Welcome Back</h2>
+      <p class="text-gray-300 mt-2">Sign in to your account</p>
+    </div>
+    
+    <form class="space-y-6" (ngSubmit)="onSubmit()" [formGroup]="form">
+      <div>
+        <label for="login" class="block text-sm font-medium text-gray-200">Login</label>
+        <input 
+          type="login" 
+          id="login" 
+          class="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-white-500 focus:border-white-500 bg-gray-700 text-white placeholder-gray-400"
+          placeholder="Enter your email or username"
+          formControlName="login"
+        >
+      </div>
+
+      
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-200">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          class="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-white-500 focus:border-white-500 bg-gray-700 text-white placeholder-gray-400"
+          placeholder="Enter your password"
+          formControlName="password"
+        >
+      </div>
+      
+    
+      
+      <button 
+        type="submit" 
+        [disabled]="form.invalid"
+        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Sign in
+      </button>
+    </form>
+    
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-300">
+        Don't have an account? 
+        <a routerLink="/register" class="font-medium text-red-400 hover:text-red-300">Sign up</a>
+      </p>
+    </div>
+  </div>
+</div>

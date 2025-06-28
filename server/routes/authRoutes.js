@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { getProfile, login, register } from "../controllers/authController.js";
+import {
+  getProfile,
+  login,
+  logout,
+  register,
+} from "../controllers/authController.js";
 import passport from "passport";
 
 const router = Router();
@@ -11,5 +16,6 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getProfile
 );
+router.get("/logout", logout);
 
 export default router;

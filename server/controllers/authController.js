@@ -59,7 +59,15 @@ export const login = (req, res, next) => {
       const token = jwt.sign(payload, secret, {
         expiresIn: "1d",
       });
-      return res.status(200).json({ success: true, token: `Bearer ${token}` });
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+          maxAge: 24 * 60 * 60 * 1000,
+        })
+        .status(200)
+        .json({ success: true });
     })(req, res, next);
   } catch (error) {
     return res
@@ -68,7 +76,18 @@ export const login = (req, res, next) => {
   }
 };
 
+export const logout = (req, res) => {
+  res.clearCookie("token").status(200).json({ success: true });
+};
+
 export const getProfile = (req, res) => {
-  const { email, username, id } = req.user;
-  return res.status(200).json({ id, email, username });
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ authenticated: false });
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({ authenticated: true, user: payload });
+  } catch (error) {
+    return res.status(401).json({ authenticated: false });
+  }
 };
