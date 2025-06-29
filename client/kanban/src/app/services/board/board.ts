@@ -11,14 +11,18 @@ export class BoardService {
   private http = inject(HttpClient);
 
   getBoards() {
-    return this.http.get<Board[]>(`${this.apiUrl}/boards`);
+    return this.http.get<Board[]>(`${this.apiUrl}/board/all`, { withCredentials: true });
   }
 
   getBoardById(id: string) {
-    return this.http.get<Board>(`${this.apiUrl}/boards/${id}`);
+    return this.http.get<Board>(`${this.apiUrl}/board/${id}`, { withCredentials: true });
   }
 
   createBoard(board: Board) {
-    return this.http.post<Board>(`${this.apiUrl}/boards`, board);
+    return this.http.post<Board>(`${this.apiUrl}/board/create`, board, { withCredentials: true });
+  }
+
+  deleteBoard(id: string) {
+    return this.http.delete(`${this.apiUrl}/board/${id}`, { withCredentials: true });
   }
 }

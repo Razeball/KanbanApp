@@ -41,10 +41,7 @@ const cookieExtractor = (req) => {
 };
 
 const opt = {
-  jwtFromRequest: ExtractJwt.fromExtractors([
-    ExtractJwt.fromAuthHeaderAsBearerToken(),
-    cookieExtractor,
-  ]),
+  jwtFromRequest: cookieExtractor,
   secretOrKey: process.env.JWT_SECRET,
 };
 
@@ -55,7 +52,11 @@ passport.use(
         where: { id: jwt_payload.id },
       });
       if (foundUser) {
-        return done(null, foundUser);
+        return done(null, {
+          id: foundUser.id,
+          email: foundUser.email,
+          username: foundUser.username,
+        });
       } else {
         return done(null, false);
       }

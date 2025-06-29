@@ -3,8 +3,8 @@
       <div class="text-2xl font-bold">Kanban Board</div>
       @if(isAuthenticated){
         <div id="menu" class="hidden md:flex space-x-6">
-          <a routerLink="/" class="hover:text-gray-300">Home</a>
-          <a routerLink="/board" class="hover:text-gray-300">Boards</a>
+          <a routerLink="/dashboard" class="hover:text-gray-300">Home</a>
+          <a routerLink="/dashboard" class="hover:text-gray-300">Boards</a>
           <a routerLink="/tasks" class="hover:text-gray-300">Tasks</a>
           <button (click)="logout()" class="hover:text-gray-300 cursor-pointer">Logout</button>
         </div>

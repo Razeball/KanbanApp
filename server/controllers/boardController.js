@@ -1,4 +1,5 @@
 import db from "../models/database.js";
+import jwt from "jsonwebtoken";
 const { Board, List, Card } = db;
 export const createBoard = async (req, res) => {
   const { id } = req.user;
@@ -18,9 +19,9 @@ export const createBoard = async (req, res) => {
 };
 
 export const getBoards = async (req, res) => {
-  const { id } = req.user;
+  const user = req.user;
   try {
-    const boards = await Board.findAll({ where: { userId: id } });
+    const boards = await Board.findAll({ where: { userId: user.id } });
     if (!boards) {
       return res
         .status(404)

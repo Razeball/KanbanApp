@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { Board } from '../board/board';
+import { BoardOverview } from '../board-overview/board-overview';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Board],
+  imports: [BoardOverview],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

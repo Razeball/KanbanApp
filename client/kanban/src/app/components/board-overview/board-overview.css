@@ -1,0 +1,18 @@
+
+.board-card {
+  background: linear-gradient(135deg, #374151 0%, #4B5563 100%);
+}
+
+.board-card:hover {
+  background: linear-gradient(135deg, #4B5563 0%, #6B7280 100%);
+}
+
+.create-board-card {
+  background: rgba(55, 65, 81, 0.5);
+  border: 2px dashed #6B7280;
+}
+
+.create-board-card:hover {
+  background: rgba(75, 85, 99, 0.3);
+  border-color: #9CA3AF;
+} 
