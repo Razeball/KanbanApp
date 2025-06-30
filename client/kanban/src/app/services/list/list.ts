@@ -11,7 +11,7 @@ export class ListService {
   private apiUrl = environment.APP_URL;
 
   createList(list: List) {
-    return this.http.post<List>(`${this.apiUrl}/list/create`, list, { withCredentials: true });
+    return this.http.post<List>(`${this.apiUrl}/list/create/${list.boardId}`, { title: list.title }, { withCredentials: true });
   }
 
   updateList(listId: string, title: string) {

@@ -1,14 +1,46 @@
 <div class="bg-gray-800 rounded-lg p-4 w-80 min-h-96">
     <div class="flex items-center justify-between mb-4">
-        <h2 class="text-white text-lg font-semibold">{{ listTitle }}</h2>
+        <h2 class="text-white text-lg font-semibold">{{ displayTitle }}</h2>
         <button class="text-gray-400 hover:text-white p-1 rounded hover:bg-gray-700">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
             </svg>
         </button>
     </div>
+
     <div class="space-y-2">
-        <app-card [cardTitle]="'Card1'"/>
-        <app-card [cardTitle]="'Card2'"/>
+        @for (card of listCards; track trackByCardId($index, card)) {
+            <app-card 
+                [cardData]="card"
+                (cardUpdated)="onCardUpdated()">
+            </app-card>
+        }
+        
+        @if (listCards.length === 0) {
+            <div class="text-center py-8">
+                <div class="text-gray-500">
+                    <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <p class="text-sm">No cards yet</p>
+                    <button 
+                        (click)="createCard()"
+                        class="text-blue-400 hover:text-blue-300 text-xs mt-1">
+                        Add a card
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <div class="mt-4">
+        <button 
+            (click)="createCard()"
+            class="w-full text-gray-400 hover:text-white hover:bg-gray-700 py-2 px-3 rounded-md text-left text-sm transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Add a card
+        </button>
     </div>
 </div>

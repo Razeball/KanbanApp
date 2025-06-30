@@ -13,65 +13,81 @@
       </button>
     </div>
 
-    
-    <div *ngIf="isLoading" class="flex justify-center items-center h-64">
-      <div class="text-white text-xl">Loading boards...</div>
-    </div>
+    @if (isLoading) {
+      <div class="flex justify-center items-center h-64">
+        <div class="text-white text-xl">Loading boards...</div>
+      </div>
+    }
 
-   
-    <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      
-      <div 
-        *ngFor="let board of boards" 
-        (click)="openBoard(board.id!)"
-        class="bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl p-6 cursor-pointer hover:from-gray-700 hover:to-gray-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-gray-600">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-semibold text-white truncate">{{ board.title }}</h3>
-          <div class="flex space-x-1">
-            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+    @if (!isLoading && error) {
+      <div class="flex justify-center items-center h-64">
+        <div class="text-center text-red-400">
+          <p class="text-xl mb-4">{{ error }}</p>
+          <button 
+            (click)="retryLoadBoards()" 
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            Try Again
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (!isLoading && !error) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        
+        @for (board of boards; track board.id) {
+          <div 
+            (click)="openBoard(board.id!)"
+            class="bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl p-6 cursor-pointer hover:from-gray-700 hover:to-gray-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-gray-600">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-semibold text-white truncate">{{ board.title }}</h3>
+              <div class="flex space-x-1">
+                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+              </div>
+            </div>
+            <div class="text-gray-400 text-sm mb-4">
+              <span>Board • {{ board.title }}</span>
+            </div>
+            <div class="flex items-center justify-between text-gray-500 text-xs">
+              <span>Click to open</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </div>
+          </div>
+        }
+
+        <div 
+          (click)="createNewBoard()"
+          class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl p-6 cursor-pointer hover:border-gray-500 hover:bg-gray-750 transition-all duration-300 flex flex-col items-center justify-center min-h-[200px]">
+          <div class="text-gray-400 text-center">
+            <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-300 mb-2">Create New Board</h3>
+            <p class="text-sm">Click to add a new board</p>
           </div>
         </div>
-        <div class="text-gray-400 text-sm mb-4">
-          <span>Board • {{ board.title }}</span>
-        </div>
-        <div class="flex items-center justify-between text-gray-500 text-xs">
-          <span>Click to open</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-        </div>
       </div>
 
-   
-      <div 
-        (click)="createNewBoard()"
-        class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl p-6 cursor-pointer hover:border-gray-500 hover:bg-gray-750 transition-all duration-300 flex flex-col items-center justify-center min-h-[200px]">
-        <div class="text-gray-400 text-center">
-          <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <h3 class="text-lg font-medium text-gray-300 mb-2">Create New Board</h3>
-          <p class="text-sm">Click to add a new board</p>
+      @if (boards.length === 0) {
+        <div class="text-center py-16">
+          <div class="text-gray-400">
+            <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            <h3 class="text-xl font-medium text-gray-300 mb-2">No boards yet</h3>
+            <p class="text-gray-500 mb-6">Create your first board to get started</p>
+            <button 
+              (click)="createNewBoard()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+              Create Your First Board
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
-
-    
-    <div *ngIf="!isLoading && boards.length === 0" class="text-center py-16">
-      <div class="text-gray-400">
-        <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-        </svg>
-        <h3 class="text-xl font-medium text-gray-300 mb-2">No boards yet</h3>
-        <p class="text-gray-500 mb-6">Create your first board to get started</p>
-        <button 
-          (click)="createNewBoard()"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-          Create Your First Board
-        </button>
-      </div>
-    </div>
+      }
+    }
   </div>
 </div> 

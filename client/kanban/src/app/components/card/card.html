@@ -1,11 +1,49 @@
-<div class="bg-gray-700 rounded-md p-3 mb-3 flex items-center justify-between hover:bg-gray-600 transition-colors">
-    <div class="flex items-center space-x-3">
-        <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-        <span class="text-white text-sm font-medium">{{ cardTitle }}</span>
+<div class="bg-gray-700 rounded-md p-3 mb-3 flex items-center justify-between hover:bg-gray-600 transition-colors cursor-pointer relative" 
+     (click)="openCardModal()">
+    <div class="flex items-center space-x-3 flex-1">
+        <input 
+            type="checkbox" 
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+            (change)="onCardInteraction()"
+            (click)="$event.stopPropagation()">
+        <div class="flex flex-col flex-1">
+            <span class="text-white text-sm font-medium">{{ displayTitle }}</span>
+            @if (displayDescription) {
+                <span class="text-gray-400 text-xs mt-1 line-clamp-2">{{ displayDescription }}</span>
+            }
+        </div>
     </div>
-    <button class="text-gray-400 hover:text-white p-1 rounded hover:bg-gray-600">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-        </svg>
-    </button>
+    
+    <div class="relative card-menu-container">
+        <button 
+            class="text-gray-400 hover:text-white p-1 rounded hover:bg-gray-600"
+            (click)="toggleMenu($event)">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+            </svg>
+        </button>
+
+     
+        @if (isMenuOpen) {
+            <div class="absolute right-0 top-8 bg-white rounded-md shadow-lg border border-gray-200 z-10 min-w-[120px] card-menu"
+                 (click)="$event.stopPropagation()">
+                <button 
+                    (click)="deleteCard($event)"
+                    class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Delete
+                </button>
+            </div>
+        }
+    </div>
 </div>
+
+
+<app-card-modal 
+    [isOpen]="isModalOpen"
+    [cardData]="cardData"
+    (modalClosed)="closeCardModal()"
+    (cardUpdated)="onCardModalUpdated($event)">
+</app-card-modal>

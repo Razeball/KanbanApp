@@ -1,0 +1,45 @@
+
+.card-container:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+.card-menu {
+  animation: menuSlideIn 0.15s ease-out;
+}
+
+@keyframes menuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.card-container {
+  transition: all 0.2s ease;
+}
+
+.menu-button:hover {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+
+.card-container:focus-within {
+  ring: 2px;
+  ring-color: rgb(59, 130, 246);
+  ring-offset: 2px;
+}
