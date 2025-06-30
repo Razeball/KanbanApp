@@ -5,6 +5,7 @@ import {
   deleteBoard,
   getBoardById,
   getBoards,
+  updateBoard,
 } from "../controllers/boardController.js";
 
 const router = Router();
@@ -19,6 +20,12 @@ router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),
   getBoardById
+);
+
+router.put(
+  "/update/:id",
+  passport.authenticate("jwt", { session: false }),
+  updateBoard
 );
 
 router.delete(

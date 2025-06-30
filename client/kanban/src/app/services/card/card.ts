@@ -34,7 +34,10 @@ export class CardService {
     });
   }
 
-  moveCard(cardId: string, listId: string, order: number) {
-    return this.http.put<Card>(`${this.apiUrl}/card/move/${cardId}`, { listId, order }, { withCredentials: true });
+  moveCard(cardId: string, newListId: string, newOrder: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/card/move/${cardId}`, 
+      { newListId, newOrder }, 
+      { withCredentials: true }
+    );
   }
 }

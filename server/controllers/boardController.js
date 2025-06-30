@@ -65,6 +65,32 @@ export const getBoardById = async (req, res) => {
   }
 };
 
+export const updateBoard = async (req, res) => {
+  const userId = req.user.id;
+  const boardId = req.params.id;
+  const { title } = req.body;
+
+  try {
+    const board = await Board.findOne({
+      where: { id: boardId, userId },
+    });
+
+    if (!board) {
+      return res.status(404).json({ message: "Board not found" });
+    }
+
+    board.title = title;
+    await board.save();
+
+    return res.status(200).json(board);
+  } catch (error) {
+    return res.status(500).json({
+      message: "An error has occurred trying to update the board",
+      details: error.message,
+    });
+  }
+};
+
 export const deleteBoard = async (req, res) => {
   const userId = req.user.id;
   const boardId = req.params.id;

@@ -1,0 +1,34 @@
+
+.board-menu {
+  animation: menuSlideIn 0.15s ease-out;
+  z-index: 1000;
+}
+
+.board-menu-container {
+  position: relative;
+}
+
+@keyframes menuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.board-menu-container button:hover {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+.board-menu-container .board-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  z-index: 1000;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}

@@ -1,20 +1,22 @@
-
 .card-container:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-
 .line-clamp-2 {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-
 .card-menu {
   animation: menuSlideIn 0.15s ease-out;
+  z-index: 1000;
+}
+
+.card-menu-container {
+  position: relative;
 }
 
 @keyframes menuSlideIn {
@@ -28,7 +30,6 @@
   }
 }
 
-
 .card-container {
   transition: all 0.2s ease;
 }
@@ -38,8 +39,28 @@
 }
 
 
-.card-container:focus-within {
-  ring: 2px;
-  ring-color: rgb(59, 130, 246);
-  ring-offset: 2px;
+.card-menu-container .card-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  z-index: 1000;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+
+.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+  z-index: 1000;
+  cursor: grabbing !important;
+}
+
+
+[draggable="true"] {
+  cursor: grab;
+}
+
+[draggable="true"]:active {
+  cursor: grabbing;
 }

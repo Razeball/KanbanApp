@@ -101,8 +101,9 @@ export const moveCard = async (req, res) => {
         ],
       });
 
-      const newList = await List.findByPk(newListId, {
+      const newList = await List.findOne({
         transaction: t,
+        where: { id: newListId },
         include: [
           {
             model: Board,
@@ -110,10 +111,9 @@ export const moveCard = async (req, res) => {
             where: { userId: req.user.id },
             attributes: [],
           },
+          { model: Card, required: false },
         ],
-        include: [{ model: Card, required: true }],
       });
-
       const oldList = await List.findOne({
         transaction: t,
         where: { id: oldCard.List.id },
@@ -136,6 +136,7 @@ export const moveCard = async (req, res) => {
           await element.save({ transaction: t });
         }
       });
+
       oldCard.set({
         order: newOrder,
         listId: newListId,
@@ -147,7 +148,7 @@ export const moveCard = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      message: "There was an error trying to update the card",
+      message: "There was an error trying to move the card",
       details: error.message,
     });
   }

@@ -59,7 +59,7 @@ export const deleteList = async (req, res) => {
       where: { id: listId },
       include: [{ model: Board, where: { userId: req.user.id } }],
     });
-    if (!list.board || list.board.userId !== req.user.id)
+    if (list.Board.userId !== req.user.id)
       return res
         .status(403)
         .json({ message: "You are unauthorized to update this list" });

@@ -1,11 +1,16 @@
-<div class="bg-gray-700 rounded-md p-3 mb-3 flex items-center justify-between hover:bg-gray-600 transition-colors cursor-pointer relative" 
+<div class="bg-gray-700 rounded-md p-3 mb-3 flex items-center justify-between hover:bg-gray-600 transition-colors cursor-move relative" 
+     [class.dragging]="isDragging"
+     draggable="true"
+     (dragstart)="onDragStart($event)"
+     (dragend)="onDragEnd($event)"
      (click)="openCardModal()">
     <div class="flex items-center space-x-3 flex-1">
         <input 
             type="checkbox" 
             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
             (change)="onCardInteraction()"
-            (click)="$event.stopPropagation()">
+            (click)="$event.stopPropagation()"
+            (dragstart)="$event.preventDefault()">
         <div class="flex flex-col flex-1">
             <span class="text-white text-sm font-medium">{{ displayTitle }}</span>
             @if (displayDescription) {
@@ -17,13 +22,13 @@
     <div class="relative card-menu-container">
         <button 
             class="text-gray-400 hover:text-white p-1 rounded hover:bg-gray-600"
-            (click)="toggleMenu($event)">
+            (click)="toggleMenu($event)"
+            (dragstart)="$event.preventDefault()">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
             </svg>
         </button>
 
-     
         @if (isMenuOpen) {
             <div class="absolute right-0 top-8 bg-white rounded-md shadow-lg border border-gray-200 z-10 min-w-[120px] card-menu"
                  (click)="$event.stopPropagation()">
