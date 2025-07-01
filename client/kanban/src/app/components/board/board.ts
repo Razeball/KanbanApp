@@ -236,7 +236,7 @@ export class Board implements OnInit, OnDestroy {
     this.confirmModalLoading = true;
     this.boardService.deleteBoard(this.boardData.id).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/boards']);
       },
       error: (error) => {
         console.error('Error deleting board:', error);
@@ -306,7 +306,7 @@ export class Board implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/boards']);
   }
 
   refreshBoard() {

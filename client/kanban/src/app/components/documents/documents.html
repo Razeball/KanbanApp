@@ -1,0 +1,238 @@
+<div class="min-h-screen bg-gray-900 p-6">
+  <div class="max-w-7xl mx-auto">
+   
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-white mb-2">Documents</h1>
+        <p class="text-gray-400">Create and manage your markdown documents</p>
+      </div>
+      
+      <div class="flex items-center gap-4">
+     
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Search documents..."
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange()"
+            class="w-64 px-4 py-2 pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        
+    
+        <button
+          (click)="triggerFileInput()"
+          [disabled]="isImporting"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+          @if (isImporting) {
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Importing...
+          } @else {
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+            </svg>
+            Import .md
+          }
+        </button>
+        
+       
+        @if (documents.length > 0) {
+          <button
+            (click)="exportAllDocuments()"
+            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            Export All
+          </button>
+        }
+        
+     
+        <button
+          (click)="openCreateModal()"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          New Document
+        </button>
+      </div>
+    </div>
+
+  
+    <input
+      type="file"
+      id="fileInput"
+      accept=".md,text/markdown"
+      (change)="onFileSelected($event)"
+      style="display: none;">
+
+   
+    @if (isLoading) {
+      <div class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <p class="text-gray-400 mt-2">Loading documents...</p>
+      </div>
+    }
+
+ 
+    @if (!isLoading && filteredDocuments.length === 0 && documents.length === 0) {
+      <div class="text-center py-12">
+        <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h2 class="text-xl font-semibold text-gray-300 mb-2">No documents yet</h2>
+        <p class="text-gray-500 mb-4">Create your first document or import existing markdown files</p>
+        <button
+          (click)="openCreateModal()"
+          class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+          Create Your First Document
+        </button>
+      </div>
+    }
+
+
+    @if (!isLoading && filteredDocuments.length === 0 && documents.length > 0) {
+      <div class="text-center py-12">
+        <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <h2 class="text-xl font-semibold text-gray-300 mb-2">No documents found</h2>
+        <p class="text-gray-500">Try adjusting your search terms</p>
+      </div>
+    }
+
+    @if (!isLoading && documents.length > 0 && !searchQuery.trim()) {
+     
+      @if (recentDocuments.length > 0) {
+        <div class="mb-8">
+          <h2 class="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Recent Activity
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            @for (document of recentDocuments; track document.id) {
+              <div
+                (click)="openDocument(document)"
+                class="bg-gray-800 rounded-lg p-4 hover:bg-gray-750 transition-colors cursor-pointer border border-gray-700 hover:border-blue-500 group">
+                <h3 class="text-sm font-medium text-white truncate group-hover:text-blue-400 transition-colors mb-1">
+                  {{ document.title }}
+                </h3>
+                <p class="text-xs text-gray-400">
+                  {{ formatDate(document.updatedAt) }}
+                </p>
+                <div class="text-xs text-gray-500 mt-2 line-clamp-2">
+                  {{ getDocumentPreview(document.content) || 'No content yet...' }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="border-t border-gray-700 pt-8">
+        <h2 class="text-xl font-semibold text-gray-200 mb-4">All Documents</h2>
+      </div>
+    }
+
+    @if (!isLoading && filteredDocuments.length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @for (document of filteredDocuments; track document.id) {
+          <div
+            (click)="openDocument(document)"
+            class="bg-gray-800 rounded-lg p-6 hover:bg-gray-750 transition-colors cursor-pointer border border-gray-700 hover:border-gray-600 group relative">
+            
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-white truncate group-hover:text-blue-400 transition-colors">
+                  {{ document.title }}
+                </h3>
+                <p class="text-sm text-gray-400 mt-1">
+                  Updated {{ formatDate(document.updatedAt) }}
+                </p>
+              </div>
+              
+              <div class="relative flex-shrink-0 ml-2 dropdown-container">
+                <button
+                  (click)="toggleDropdown(document.id, $event)"
+                  class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-all duration-200 opacity-60 group-hover:opacity-100 flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                  </svg>
+                </button>
+                
+                @if (isDropdownOpen(document.id)) {
+                  <div class="absolute right-0 top-full mt-1 bg-gray-700 rounded-md shadow-lg border border-gray-600 z-50 min-w-[140px] overflow-hidden">
+                    <button
+                      (click)="exportDocument(document, $event)"
+                      class="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-gray-600 transition-colors flex items-center gap-2 border-b border-gray-600 last:border-b-0">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                      </svg>
+                      Export
+                    </button>
+                    <button
+                      (click)="confirmDeleteDocument(document, $event)"
+                      class="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-900 hover:bg-opacity-20 transition-colors flex items-center gap-2">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                      Delete
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+            
+            <div class="text-gray-300 text-sm line-clamp-4">
+              {{ getDocumentPreview(document.content) || 'No content yet...' }}
+            </div>
+            
+            @if (document.tags && document.tags.length > 0) {
+              <div class="flex flex-wrap gap-1 mt-4">
+                @for (tag of document.tags; track tag) {
+                  <span class="px-2 py-1 bg-blue-600 bg-opacity-20 text-blue-400 text-xs rounded">
+                    {{ tag }}
+                  </span>
+                }
+              </div>
+            }
+            
+            <div class="absolute top-4 right-4 opacity-20 group-hover:opacity-40 transition-opacity">
+              <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+
+<app-title-input-modal
+  [isOpen]="isCreateModalOpen"
+  title="Create New Document"
+  placeholder="Enter document title..."
+  buttonText="Create Document"
+  (modalClosed)="closeCreateModal()"
+  (titleSubmitted)="onCreateDocument($event)"></app-title-input-modal>
+
+
+<app-confirmation-modal
+  [isOpen]="isDeleteModalOpen"
+  title="Delete Document"
+  [message]="deleteMessage"
+  confirmText="Delete"
+  cancelText="Cancel"
+  type="danger"
+  (modalClosed)="closeDeleteModal()"
+  (confirmed)="deleteDocument()"></app-confirmation-modal>

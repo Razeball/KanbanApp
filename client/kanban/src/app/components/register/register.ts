@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { Auth } from '../../services/authorization/auth';
@@ -10,7 +10,7 @@ import { Auth } from '../../services/authorization/auth';
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
-export class Register {
+export class Register implements OnInit {
   authService = inject(Auth);
   router = inject(Router);
   
@@ -19,6 +19,20 @@ export class Register {
     username: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required]),
   });
+
+  ngOnInit() {
+
+    this.authService.isAuthenticated().subscribe({
+      next: (isAuth) => {
+        if (isAuth) {
+          this.router.navigate(['/dashboard']);
+        }
+      },
+      error: () => {
+
+      }
+    });
+  }
 
   onSubmit() {
     if (this.form.valid) {

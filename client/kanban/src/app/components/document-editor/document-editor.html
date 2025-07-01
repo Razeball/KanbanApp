@@ -1,0 +1,236 @@
+<div class="min-h-screen bg-gray-900">
+
+  <div class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+    
+      <div class="flex items-center gap-4">
+        <button
+          (click)="goBack()"
+          class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        
+        @if (document && !isEditing) {
+          <h1 class="text-xl font-semibold text-white">{{ document.title }}</h1>
+        }
+        
+        @if (document && isEditing) {
+          <input
+            type="text"
+            [(ngModel)]="document.title"
+            (input)="onTitleChange()"
+            class="text-xl font-semibold bg-transparent text-white border-none outline-none focus:bg-gray-700 px-2 py-1 rounded"
+            placeholder="Document title...">
+        }
+      </div>
+
+
+      <div class="flex items-center gap-3">
+
+        @if (hasUnsavedChanges) {
+          <span class="text-yellow-400 text-sm flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+            </svg>
+            Unsaved changes
+          </span>
+        }
+        
+        @if (lastSaved && !hasUnsavedChanges) {
+          <span class="text-green-400 text-sm">
+            Saved {{ formatDate(lastSaved) }}
+          </span>
+        }
+        
+        @if (isSaving) {
+          <span class="text-blue-400 text-sm flex items-center gap-1">
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Saving...
+          </span>
+        }
+
+
+        <div class="flex items-center bg-gray-700 rounded-lg p-1">
+          <button
+            (click)="isEditing = true; showPreview = false"
+            [class.bg-blue-600]="isEditing && !showPreview"
+            class="px-3 py-1 rounded text-sm text-white transition-colors">
+            Edit
+          </button>
+          <button
+            (click)="showPreview = true; isEditing = false"
+            [class.bg-blue-600]="showPreview"
+            class="px-3 py-1 rounded text-sm text-white transition-colors">
+            Preview
+          </button>
+        </div>
+
+
+        <button
+          (click)="saveDocument()"
+          [disabled]="!hasUnsavedChanges || isSaving"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg font-medium transition-colors">
+          Save
+        </button>
+
+ 
+        <div class="relative">
+          <button
+            (click)="toggleDropdown($event)"
+            class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+            </svg>
+          </button>
+          
+          @if (isDropdownOpen) {
+            <div class="absolute right-0 top-full mt-1 bg-gray-700 rounded-md shadow-lg border border-gray-600 z-50 min-w-[140px] overflow-hidden">
+              <button
+                (click)="exportDocument()"
+                class="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-gray-600 transition-colors flex items-center gap-2 border-b border-gray-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                Export
+              </button>
+              <button
+                (click)="deleteDocument()"
+                class="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-900 hover:bg-opacity-20 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Delete
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  @if (isLoading) {
+    <div class="flex items-center justify-center h-64">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <p class="text-gray-400 mt-2">Loading document...</p>
+      </div>
+    </div>
+  }
+
+
+  @if (!isLoading && document) {
+    <div class="max-w-7xl mx-auto p-6">
+      
+  
+      @if (isEditing) {
+        <div class="flex flex-wrap gap-1 mb-4 p-3 bg-gray-800 rounded-lg border border-gray-700">
+ 
+          <button type="button" (click)="insertHeader(1)" class="markdown-btn" title="Header 1">
+            <span class="font-bold text-lg">H1</span>
+          </button>
+          <button type="button" (click)="insertHeader(2)" class="markdown-btn" title="Header 2">
+            <span class="font-bold">H2</span>
+          </button>
+          <button type="button" (click)="insertHeader(3)" class="markdown-btn" title="Header 3">
+            <span class="font-semibold text-sm">H3</span>
+          </button>
+          
+          <div class="w-px h-6 bg-gray-500 mx-1"></div>
+          
+
+          <button type="button" (click)="insertBold()" class="markdown-btn" title="Bold">
+            <span class="font-bold">B</span>
+          </button>
+          <button type="button" (click)="insertItalic()" class="markdown-btn" title="Italic">
+            <span class="italic">I</span>
+          </button>
+          <button type="button" (click)="insertCode()" class="markdown-btn" title="Inline Code">
+            <span class="font-mono text-xs bg-gray-600 px-1 rounded">&lt;&gt;</span>
+          </button>
+          
+          <div class="w-px h-6 bg-gray-500 mx-1"></div>
+          
+
+          <button type="button" (click)="insertList()" class="markdown-btn" title="Bullet List">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M4 4a1 1 0 11-2 0 1 1 0 012 0zM4 10a1 1 0 11-2 0 1 1 0 012 0zM4 16a1 1 0 11-2 0 1 1 0 012 0zM6 4h10a1 1 0 010 2H6a1 1 0 010-2zM6 10h10a1 1 0 010 2H6a1 1 0 010-2zM6 16h10a1 1 0 010 2H6a1 1 0 010-2z"></path>
+            </svg>
+          </button>
+          <button type="button" (click)="insertOrderedList()" class="markdown-btn" title="Numbered List">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 16a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path>
+            </svg>
+          </button>
+          
+          <div class="w-px h-6 bg-gray-500 mx-1"></div>
+          
+
+          <button type="button" (click)="insertQuote()" class="markdown-btn" title="Quote">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z"></path>
+            </svg>
+          </button>
+          <button type="button" (click)="insertLink()" class="markdown-btn" title="Link">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+            </svg>
+          </button>
+          <button type="button" (click)="insertHorizontalRule()" class="markdown-btn" title="Horizontal Rule">
+            <span class="text-xs font-mono">---</span>
+          </button>
+        </div>
+      }
+      
+
+      <div class="bg-gray-800 rounded-lg border border-gray-700">
+        @if (isEditing) {
+
+          <textarea
+            #contentTextarea
+            [(ngModel)]="document.content"
+            (input)="onContentChange()"
+            placeholder="Start writing your document..."
+            class="w-full h-96 p-4 bg-transparent text-white border-none outline-none resize-vertical font-mono text-sm leading-relaxed">
+          </textarea>
+        } @else {
+
+          <div class="preview-container p-6 min-h-96">
+            @if (document.content.trim()) {
+              <div class="markdown-preview" [innerHTML]="renderedContent"></div>
+            } @else {
+              <div class="text-gray-500 italic text-center py-12">
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p>This document is empty.</p>
+                <p class="text-sm mt-1">Click "Edit" to start writing.</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      
+ 
+      @if (document) {
+        <div class="mt-4 text-sm text-gray-400 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <span>Created {{ formatDate(document.createdAt) }}</span>
+            <span>Updated {{ formatDate(document.updatedAt) }}</span>
+          </div>
+          
+          @if (isEditing) {
+            <div class="text-xs text-gray-500">
+              Auto-save every 30 seconds
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div> 

@@ -1,25 +1,37 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { Auth } from '../../services/authorization/auth';
-import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink],
+  imports: [RouterModule],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
-export class Navbar implements OnInit, OnDestroy {
-  constructor(private authService: Auth, private router: Router) {}
-  isAuthenticated: boolean = false;
-  private authSubscription?: Subscription;
-  
+export class Navbar implements OnInit {
+  private authService = inject(Auth);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  isMobileMenuOpen = false;
+  isAuthenticated = false;
+
   ngOnInit() {
     
-    this.authSubscription = this.authService.authState$.subscribe((authenticated) => {
+    this.authService.isAuthenticated().subscribe(authenticated => {
       this.isAuthenticated = authenticated;
+      this.cdr.detectChanges();
     });
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.cdr.detectChanges();
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
+    this.cdr.detectChanges();
   }
 
   logout() {
@@ -27,18 +39,10 @@ export class Navbar implements OnInit, OnDestroy {
       next: () => {
         this.router.navigate(['/login']);
       },
-      error: (err) => {
-        console.error('Logout error:', err);
-        
+      error: (error) => {
+        console.error('Logout failed:', error);
         this.router.navigate(['/login']);
       }
     });
-  }
-
-  ngOnDestroy() {
-    
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
-    }
   }
 }

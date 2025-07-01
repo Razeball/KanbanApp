@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class LocalStorageService {
-  private readonly CARD_COMPLETION_KEY = 'kanban_card_completion';
+  private readonly CARD_COMPLETION_KEY = 'prodoku_card_completion';
 
   
   getCardCompletionStates(): Record<string, boolean> {
