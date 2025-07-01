@@ -4,4 +4,5 @@ export interface Card {
     description?: string;
     listId: string;
     order?: number;
+    completed?: boolean;
 }

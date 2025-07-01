@@ -1,6 +1,8 @@
 import { Component, Input, Output, EventEmitter, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Card as CardModel } from '../../models/card';
 import { CardService } from '../../services/card/card';
+import { LocalStorageService } from '../../services/local-storage/local-storage';
+import { MarkdownService } from '../../services/markdown/markdown';
 import { CardModal } from '../card-modal/card-modal';
 
 @Component({
@@ -15,15 +17,19 @@ export class Card implements OnInit, OnDestroy {
   @Output() cardUpdated = new EventEmitter<void>();
 
   private cardService = inject(CardService);
+  private localStorageService = inject(LocalStorageService);
+  private markdownService = inject(MarkdownService);
   private cdr = inject(ChangeDetectorRef);
 
   isModalOpen = false;
   isMenuOpen = false;
   isDragging = false;
+  isCompleted = false;
   private documentClickListener?: (event: Event) => void;
 
   ngOnInit() {
     this.setupDocumentClickListener();
+    this.loadCompletionState();
   }
 
   ngOnDestroy() {
@@ -50,6 +56,13 @@ export class Card implements OnInit, OnDestroy {
     }
   }
 
+  private loadCompletionState() {
+    if (this.cardData?.id) {
+      this.isCompleted = this.localStorageService.getCardCompletionState(this.cardData.id);
+      this.cdr.detectChanges();
+    }
+  }
+
   get displayTitle(): string {
     return this.cardData?.title || this.cardTitle;
   }
@@ -58,30 +71,55 @@ export class Card implements OnInit, OnDestroy {
     return this.cardData?.description;
   }
 
+  get renderedDescription(): string {
+    const description = this.displayDescription;
+    if (!description) return '';
+    
+
+    if (this.markdownService.hasMarkdownSyntax(description)) {
+      return this.markdownService.parseMarkdown(description);
+    }
+    
+  
+    return description.replace(/\n/g, '<br>');
+  }
+
+  get hasMarkdownDescription(): boolean {
+    const description = this.displayDescription;
+    return description ? this.markdownService.hasMarkdownSyntax(description) : false;
+  }
+
   get cardId(): string | undefined {
     return this.cardData?.id;
   }
 
- 
+  onCheckboxChange(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    const completed = checkbox.checked;
+    
+    if (this.cardData?.id) {
+      this.isCompleted = completed;
+      this.localStorageService.setCardCompletionState(this.cardData.id, completed);
+      this.cdr.detectChanges();
+    }
+  }
+
   onDragStart(event: DragEvent) {
     if (!this.cardData?.id) return;
     
     this.isDragging = true;
-    this.isMenuOpen = false; 
+    this.isMenuOpen = false;
     
-  
     event.dataTransfer?.setData('text/plain', JSON.stringify({
       cardId: this.cardData.id,
       sourceListId: this.cardData.listId,
       title: this.cardData.title
     }));
     
-    
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
     }
     
- 
     (event.currentTarget as HTMLElement)?.classList.add('dragging');
     this.cdr.detectChanges();
   }
@@ -133,6 +171,10 @@ export class Card implements OnInit, OnDestroy {
 
     this.cardService.deleteCard(this.cardData.id).subscribe({
       next: () => {
+        
+        if (this.cardData?.id) {
+          this.localStorageService.removeCardCompletionState(this.cardData.id);
+        }
         this.cardUpdated.emit();
         this.isMenuOpen = false;
         this.cdr.detectChanges();

@@ -1,6 +1,47 @@
-/* You can add global styles to this file, and also import other style files */
+
 @import "tailwindcss";
 body {
     background-color: #1a202c;
+}
+
+
+.preview-container .markdown-preview ul {
+  list-style-type: disc !important;
+  list-style: disc !important;
+  margin-left: 0 !important;
+  padding-left: 1.5rem !important;
+}
+
+.preview-container .markdown-preview ol {
+  list-style-type: decimal !important;
+  list-style: decimal !important;
+  margin-left: 0 !important;
+  padding-left: 1.5rem !important;
+}
+
+.preview-container .markdown-preview li {
+  list-style: inherit !important;
+  display: list-item !important;
+  margin: 0.25rem 0 !important;
+}
+
+.preview-container .markdown-preview h1 {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  margin: 1rem 0 0.5rem 0 !important;
+  border-bottom: 2px solid #4a5568 !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.preview-container .markdown-preview h2 {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  margin: 0.75rem 0 0.5rem 0 !important;
+}
+
+.preview-container .markdown-preview h3 {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin: 0.5rem 0 0.25rem 0 !important;
 }
 

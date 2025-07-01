@@ -1,4 +1,4 @@
-
+/* I hate this a lot */
 .modal-backdrop {
   backdrop-filter: blur(2px);
 }
@@ -36,4 +36,281 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 .modal-content {
   animation: modalFadeIn 0.2s ease-out;
+}
+
+
+.preview-container {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.preview-container .markdown-preview,
+.preview-container .markdown-preview * {
+  box-sizing: border-box !important;
+}
+
+.preview-container .markdown-preview {
+  color: rgb(229, 231, 235) !important;
+  font-size: 0.875rem !important;
+  line-height: 1.6 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.preview-container .markdown-preview h1,
+.preview-container .markdown-preview h2,
+.preview-container .markdown-preview h3,
+.preview-container .markdown-preview h4,
+.preview-container .markdown-preview h5,
+.preview-container .markdown-preview h6 {
+  font-weight: 600 !important;
+  margin: 0.75rem 0 0.5rem 0 !important;
+  color: rgb(255, 255, 255) !important;
+  line-height: 1.3 !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+.preview-container .markdown-preview h1:first-child,
+.preview-container .markdown-preview h2:first-child,
+.preview-container .markdown-preview h3:first-child,
+.preview-container .markdown-preview h4:first-child,
+.preview-container .markdown-preview h5:first-child,
+.preview-container .markdown-preview h6:first-child {
+  margin-top: 0 !important;
+}
+
+.preview-container .markdown-preview h1 { 
+  font-size: 1.75rem !important; 
+  border-bottom: 2px solid rgb(75, 85, 99) !important;
+  padding-bottom: 0.5rem !important;
+}
+.preview-container .markdown-preview h2 { 
+  font-size: 1.5rem !important; 
+  border-bottom: 1px solid rgb(75, 85, 99) !important;
+  padding-bottom: 0.25rem !important;
+}
+.preview-container .markdown-preview h3 { font-size: 1.25rem !important; }
+.preview-container .markdown-preview h4 { font-size: 1.125rem !important; }
+.preview-container .markdown-preview h5 { font-size: 1rem !important; }
+.preview-container .markdown-preview h6 { font-size: 0.875rem !important; opacity: 0.8 !important; }
+
+.preview-container .markdown-preview p {
+  margin: 0.75rem 0 !important;
+  line-height: 1.6 !important;
+  display: block !important;
+}
+
+.preview-container .markdown-preview p:first-child {
+  margin-top: 0 !important;
+}
+
+.preview-container .markdown-preview p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.preview-container .markdown-preview strong {
+  font-weight: 600 !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.preview-container .markdown-preview em {
+  font-style: italic !important;
+  color: rgb(249, 250, 251) !important;
+}
+
+.preview-container .markdown-preview code {
+  background-color: rgb(55, 65, 81) !important;
+  color: rgb(96, 165, 250) !important;
+  padding: 0.125rem 0.375rem !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.8125rem !important;
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace !important;
+  border: 1px solid rgb(75, 85, 99) !important;
+}
+
+.preview-container .markdown-preview pre {
+  background-color: rgb(31, 41, 55) !important;
+  border: 1px solid rgb(75, 85, 99) !important;
+  border-radius: 0.375rem !important;
+  padding: 1rem !important;
+  margin: 1rem 0 !important;
+  overflow-x: auto !important;
+  font-size: 0.8125rem !important;
+  display: block !important;
+}
+
+.preview-container .markdown-preview pre code {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  color: rgb(229, 231, 235) !important;
+}
+
+.preview-container .markdown-preview ul,
+.preview-container .markdown-preview ol {
+  margin: 0.75rem 0 !important;
+  padding: 0 !important;
+  padding-left: 1.75rem !important;
+  display: block !important;
+  list-style: none !important;
+}
+
+.preview-container .markdown-preview li {
+  margin: 0.375rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.5 !important;
+  display: list-item !important;
+  list-style: inherit !important;
+  list-style-position: outside !important;
+}
+
+.preview-container .markdown-preview ul {
+  list-style-type: disc !important;
+  list-style: disc !important;
+}
+
+.preview-container .markdown-preview ol {
+  list-style-type: decimal !important;
+  list-style: decimal !important;
+}
+
+.preview-container .markdown-preview ul ul,
+.preview-container .markdown-preview ol ol,
+.preview-container .markdown-preview ul ol,
+.preview-container .markdown-preview ol ul {
+  margin: 0.25rem 0 !important;
+}
+
+.preview-container .markdown-preview blockquote {
+  border-left: 4px solid rgb(96, 165, 250) !important;
+  background-color: rgba(96, 165, 250, 0.1) !important;
+  padding: 0.75rem 1rem !important;
+  margin: 1rem 0 !important;
+  font-style: italic !important;
+  border-radius: 0 0.375rem 0.375rem 0 !important;
+  display: block !important;
+}
+
+.preview-container .markdown-preview blockquote p {
+  margin: 0.5rem 0 !important;
+}
+
+.preview-container .markdown-preview blockquote p:first-child {
+  margin-top: 0 !important;
+}
+
+.preview-container .markdown-preview blockquote p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.preview-container .markdown-preview a {
+  color: rgb(96, 165, 250) !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(96, 165, 250, 0.5) !important;
+  transition: all 0.2s ease !important;
+}
+
+.preview-container .markdown-preview a:hover {
+  color: rgb(147, 197, 253) !important;
+  text-decoration-color: rgb(147, 197, 253) !important;
+}
+
+.preview-container .markdown-preview hr {
+  border: none !important;
+  border-top: 2px solid rgb(75, 85, 99) !important;
+  margin: 1.5rem 0 !important;
+  display: block !important;
+}
+
+.preview-container .markdown-preview table {
+  border-collapse: collapse !important;
+  margin: 1rem 0 !important;
+  width: 100% !important;
+  border: 1px solid rgb(75, 85, 99) !important;
+  display: table !important;
+}
+
+.preview-container .markdown-preview th,
+.preview-container .markdown-preview td {
+  border: 1px solid rgb(75, 85, 99) !important;
+  padding: 0.5rem 0.75rem !important;
+  text-align: left !important;
+}
+
+.preview-container .markdown-preview th {
+  background-color: rgb(55, 65, 81) !important;
+  font-weight: 600 !important;
+}
+
+
+.preview-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.preview-container::-webkit-scrollbar-track {
+  background: rgb(55, 65, 81);
+  border-radius: 4px;
+}
+
+.preview-container::-webkit-scrollbar-thumb {
+  background: rgb(107, 114, 128);
+  border-radius: 4px;
+}
+
+.preview-container::-webkit-scrollbar-thumb:hover {
+  background: rgb(156, 163, 175);
+}
+
+
+@media (max-width: 640px) {
+  .preview-container .markdown-preview h1 { font-size: 1.5rem !important; }
+  .preview-container .markdown-preview h2 { font-size: 1.25rem !important; }
+  .preview-container .markdown-preview h3 { font-size: 1.125rem !important; }
+  
+  .markdown-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+}
+
+
+.markdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: rgb(55, 65, 81);
+  border: 1px solid rgb(75, 85, 99);
+  border-radius: 0.375rem;
+  color: rgb(229, 231, 235);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.markdown-btn:hover {
+  background-color: rgb(75, 85, 99);
+  border-color: rgb(96, 165, 250);
+  color: rgb(255, 255, 255);
+  transform: translateY(-1px);
+}
+
+.markdown-btn:active {
+  transform: translateY(0);
+  background-color: rgb(96, 165, 250);
+}
+
+.markdown-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5);
 } 

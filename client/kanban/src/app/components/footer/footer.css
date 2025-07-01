@@ -1,0 +1,32 @@
+footer {
+  flex-shrink: 0;
+}
+
+
+img:hover {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+
+@media (max-width: 768px) {
+  .text-sm {
+    font-size: 0.75rem;
+  }
+}
+
+
+footer {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} 

@@ -1,21 +1,14 @@
 <div class="bg-gray-900 min-h-screen p-6">
   <div class="max-w-7xl mx-auto">
 
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-3xl font-bold text-white">My Boards</h1>
-      <button 
-        (click)="createNewBoard()"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Create New Board
-      </button>
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">My Boards</h1>
+      <p class="text-gray-400">Organize your projects and tasks</p>
     </div>
 
     @if (isLoading) {
       <div class="flex justify-center items-center h-64">
-        <div class="text-white text-xl">Loading boards...</div>
+        <app-spinner size="lg" color="white" text="Loading boards..."></app-spinner>
       </div>
     }
 
@@ -24,7 +17,7 @@
         <div class="text-center text-red-400">
           <p class="text-xl mb-4">{{ error }}</p>
           <button 
-            (click)="retryLoadBoards()" 
+            (click)="loadBoards()" 
             class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
             Try Again
           </button>
@@ -35,59 +28,67 @@
     @if (!isLoading && !error) {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         
-        @for (board of boards; track board.id) {
-          <div 
-            (click)="openBoard(board.id!)"
-            class="bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl p-6 cursor-pointer hover:from-gray-700 hover:to-gray-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-gray-600">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xl font-semibold text-white truncate">{{ board.title }}</h3>
-              <div class="flex space-x-1">
-                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-              </div>
-            </div>
-            <div class="text-gray-400 text-sm mb-4">
-              <span>Board • {{ board.title }}</span>
-            </div>
-            <div class="flex items-center justify-between text-gray-500 text-xs">
-              <span>Click to open</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        <div class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-lg p-6 hover:border-gray-500 transition-colors cursor-pointer group"
+             (click)="openCreateBoardModal()">
+          <div class="flex flex-col items-center justify-center h-32">
+            <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mb-3 group-hover:bg-gray-600 transition-colors">
+              <svg class="w-6 h-6 text-gray-400 group-hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
+            </div>
+            <h3 class="text-gray-300 font-medium group-hover:text-white transition-colors">Create New Board</h3>
+          </div>
+        </div>
+
+        @for (board of boards; track trackByBoardId($index, board)) {
+          <div class="bg-gradient-to-br {{ getGradientClass($index) }} rounded-lg p-6 cursor-pointer transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+               (click)="navigateToBoard(board.id!)">
+            <div class="flex flex-col h-32">
+              <div class="flex-1">
+                <h3 class="text-white text-lg font-semibold mb-2 line-clamp-2">{{ board.title }}</h3>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center text-white/80 text-sm">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                  <span>Board</span>
+                </div>
+                <svg class="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
             </div>
           </div>
         }
 
-        <div 
-          (click)="createNewBoard()"
-          class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl p-6 cursor-pointer hover:border-gray-500 hover:bg-gray-750 transition-all duration-300 flex flex-col items-center justify-center min-h-[200px]">
-          <div class="text-gray-400 text-center">
-            <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            <h3 class="text-lg font-medium text-gray-300 mb-2">Create New Board</h3>
-            <p class="text-sm">Click to add a new board</p>
+        @if (boards.length === 0) {
+          <div class="col-span-full text-center py-12">
+            <div class="text-gray-500">
+              <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              <h3 class="text-xl font-medium text-gray-400 mb-2">No boards yet</h3>
+              <p class="text-gray-500 mb-4">Create your first board to get started</p>
+              <button 
+                (click)="openCreateBoardModal()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                Create Board
+              </button>
+            </div>
           </div>
-        </div>
+        }
       </div>
-
-      @if (boards.length === 0) {
-        <div class="text-center py-16">
-          <div class="text-gray-400">
-            <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-            </svg>
-            <h3 class="text-xl font-medium text-gray-300 mb-2">No boards yet</h3>
-            <p class="text-gray-500 mb-6">Create your first board to get started</p>
-            <button 
-              (click)="createNewBoard()"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-              Create Your First Board
-            </button>
-          </div>
-        </div>
-      }
     }
+
+    <app-title-input-modal
+      [isOpen]="isTitleModalOpen"
+      [title]="'Create New Board'"
+      [placeholder]="'Enter board title...'"
+      [currentValue]="''"
+      [isLoading]="titleModalLoading"
+      (modalClosed)="onTitleModalClosed()"
+      (titleSubmitted)="onTitleSubmitted($event)">
+    </app-title-input-modal>
   </div>
 </div> 

@@ -1,0 +1,19 @@
+<div class="flex flex-col items-center justify-center gap-3">
+  <div class="spinner" 
+       [class.spinner-sm]="size === 'sm'"
+       [class.spinner-md]="size === 'md'" 
+       [class.spinner-lg]="size === 'lg'"
+       [class.spinner-white]="color === 'white'"
+       [class.spinner-blue]="color === 'blue'"
+       [class.spinner-gray]="color === 'gray'">
+    <div class="spinner-circle"></div>
+  </div>
+  @if (text) {
+    <div class="spinner-text" 
+         [class.text-white]="color === 'white'"
+         [class.text-blue-600]="color === 'blue'"
+         [class.text-gray-600]="color === 'gray'">
+      {{ text }}
+    </div>
+  }
+</div> 

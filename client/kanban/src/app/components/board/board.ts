@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { List } from '../list/list';
+import { Spinner } from '../spinner/spinner';
+import { TitleInputModal } from '../title-input-modal/title-input-modal';
+import { ConfirmationModal } from '../confirmation-modal/confirmation-modal';
 import { BoardService } from '../../services/board/board';
 import { ListService } from '../../services/list/list';
 import { Board as BoardModel } from '../../models/board';
@@ -9,7 +12,7 @@ import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-board',
-  imports: [List],
+  imports: [List, Spinner, TitleInputModal, ConfirmationModal],
   templateUrl: './board.html',
   styleUrl: './board.css'
 })
@@ -27,6 +30,18 @@ export class Board implements OnInit, OnDestroy {
   boardId: string | null = null;
   isBoardMenuOpen = false;
   private documentClickListener?: (event: Event) => void;
+
+
+  isTitleModalOpen = false;
+  titleModalLoading = false;
+  titleModalType: 'board' | 'list' = 'board';
+  
+  isConfirmModalOpen = false;
+  confirmModalLoading = false;
+  confirmAction: 'delete-board' | null = null;
+  
+ 
+  boardDeleteFirstConfirm = false;
 
   private boardDataSubject = new BehaviorSubject<BoardModel | null>(null);
   private listsSubject = new BehaviorSubject<ListModel[]>([]);
@@ -110,69 +125,115 @@ export class Board implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  editBoardTitle(event: Event) {
+  openEditBoardTitleModal(event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    
-    if (!this.boardData?.id || !this.boardData?.title) return;
+    this.titleModalType = 'board';
+    this.isTitleModalOpen = true;
+    this.isBoardMenuOpen = false;
+    this.cdr.detectChanges();
+  }
 
-    const newTitle = prompt('Enter new board title:', this.boardData.title);
-    if (newTitle && newTitle.trim() && newTitle !== this.boardData.title) {
-      this.boardService.updateBoard(this.boardData.id, newTitle.trim()).subscribe({
-        next: (updatedBoard) => {
-          if (this.boardData) {
-            this.boardData.title = updatedBoard.title;
-          }
-          this.isBoardMenuOpen = false;
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error updating board:', error);
-          alert('Failed to update board title. Please try again.');
-          this.isBoardMenuOpen = false;
-          this.cdr.detectChanges();
-        }
-      });
-    } else {
-      this.isBoardMenuOpen = false;
-      this.cdr.detectChanges();
+  openCreateListModal() {
+    this.titleModalType = 'list';
+    this.isTitleModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  onTitleModalClosed() {
+    this.isTitleModalOpen = false;
+    this.titleModalLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  onTitleSubmitted(title: string) {
+    if (this.titleModalType === 'board') {
+      this.updateBoardTitle(title);
+    } else if (this.titleModalType === 'list') {
+      this.createListWithTitle(title);
     }
   }
 
-  deleteBoard(event: Event) {
+  private updateBoardTitle(title: string) {
+    if (!this.boardData?.id) return;
+
+    this.titleModalLoading = true;
+    this.boardService.updateBoard(this.boardData.id, title).subscribe({
+      next: (updatedBoard) => {
+        if (this.boardData) {
+          this.boardData.title = updatedBoard.title;
+        }
+        this.onTitleModalClosed();
+      },
+      error: (error) => {
+        console.error('Error updating board:', error);
+        alert('Failed to update board title. Please try again.');
+        this.onTitleModalClosed();
+      }
+    });
+  }
+
+  private createListWithTitle(title: string) {
+    if (!this.boardId) return;
+
+    this.titleModalLoading = true;
+    this.listService.createList(this.boardId, title).subscribe({
+      next: (list) => {
+        this.boardLists.push(list);
+        this.onTitleModalClosed();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error creating list:', error);
+        alert('Failed to create list. Please try again.');
+        this.onTitleModalClosed();
+      }
+    });
+  }
+
+  openDeleteBoardModal(event: Event) {
     event.stopPropagation();
     event.preventDefault();
     
+    this.boardDeleteFirstConfirm = false;
+    this.confirmAction = 'delete-board';
+    this.isConfirmModalOpen = true;
+    this.isBoardMenuOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  onConfirmModalClosed() {
+    this.isConfirmModalOpen = false;
+    this.confirmModalLoading = false;
+    this.confirmAction = null;
+    this.boardDeleteFirstConfirm = false;
+    this.cdr.detectChanges();
+  }
+
+  onConfirmModalConfirmed() {
+    if (this.confirmAction === 'delete-board') {
+      this.handleBoardDeleteConfirmation();
+    }
+  }
+
+  onConfirmModalCancelled() {
+    this.onConfirmModalClosed();
+  }
+
+  private handleBoardDeleteConfirmation() {
     if (!this.boardData?.id || !this.boardData?.title) return;
 
     const listCount = this.boardLists.length;
-    
 
-    const firstWarning = listCount === 0 
-      ? `Are you sure you want to delete "${this.boardData.title}"?`
-      : `Are you sure you want to delete "${this.boardData.title}"?`;
-    
-    const firstConfirm = confirm(firstWarning);
-    if (!firstConfirm) {
-      this.isBoardMenuOpen = false;
+  
+    if (!this.boardDeleteFirstConfirm && listCount > 0) {
+      this.boardDeleteFirstConfirm = true;
       this.cdr.detectChanges();
       return;
     }
 
 
-    if (listCount > 0) {
-      const listWord = listCount === 1 ? 'list' : 'lists';
-      const secondWarning = `⚠️ WARNING: This action cannot be undone!\n\nYou are about to delete a board with ${listCount} ${listWord} and all their cards. All content will be permanently lost.\n\nAre you absolutely sure you want to proceed?`;
-      
-      const secondConfirm = confirm(secondWarning);
-      if (!secondConfirm) {
-        this.isBoardMenuOpen = false;
-        this.cdr.detectChanges();
-        return;
-      }
-    }
-
-
+    this.confirmModalLoading = true;
     this.boardService.deleteBoard(this.boardData.id).subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
@@ -180,26 +241,68 @@ export class Board implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error deleting board:', error);
         alert('Failed to delete board. Please try again.');
-        this.isBoardMenuOpen = false;
-        this.cdr.detectChanges();
+        this.onConfirmModalClosed();
       }
     });
   }
 
-  createList() {
-    const title = prompt('Enter list title:');
-    if (title && this.boardId) {
-      this.listService.createList(this.boardId, title).subscribe({
-        next: (list) => {
-          this.boardLists.push(list);
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error creating list:', error);
-          alert('Failed to create list. Please try again.');
-        }
-      });
+
+  get titleModalTitle(): string {
+    if (this.titleModalType === 'board') {
+      return 'Edit Board Title';
     }
+    return 'Create New List';
+  }
+
+  get titleModalPlaceholder(): string {
+    if (this.titleModalType === 'board') {
+      return 'Enter board title...';
+    }
+    return 'Enter list title...';
+  }
+
+  get titleModalCurrentValue(): string {
+    if (this.titleModalType === 'board') {
+      return this.boardData?.title || '';
+    }
+    return '';
+  }
+
+  get confirmModalTitle(): string {
+    if (this.confirmAction === 'delete-board') {
+      return this.boardDeleteFirstConfirm ? 'Final Warning' : 'Delete Board';
+    }
+    return 'Confirm Action';
+  }
+
+  get confirmModalMessage(): string {
+    if (this.confirmAction === 'delete-board') {
+      const listCount = this.boardLists.length;
+      
+      if (!this.boardDeleteFirstConfirm) {
+        return `Are you sure you want to delete "${this.boardData?.title}"?`;
+      } else {
+        const listWord = listCount === 1 ? 'list' : 'lists';
+        return `⚠️ WARNING: This action cannot be undone!\n\nYou are about to delete a board with ${listCount} ${listWord} and all their cards. All content will be permanently lost.\n\nAre you absolutely sure you want to proceed?`;
+      }
+    }
+    return 'Are you sure you want to proceed?';
+  }
+
+  get confirmModalIsWarning(): boolean {
+    return this.confirmAction === 'delete-board' && this.boardDeleteFirstConfirm;
+  }
+
+  get confirmModalConfirmText(): string {
+    if (this.confirmAction === 'delete-board') {
+      return this.boardDeleteFirstConfirm ? 'Delete Permanently' : 'Continue';
+    }
+    return 'Confirm';
+  }
+
+
+  createList() {
+    this.openCreateListModal();
   }
 
   goBack() {

@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { Card } from '../card/card';
+import { TitleInputModal } from '../title-input-modal/title-input-modal';
+import { ConfirmationModal } from '../confirmation-modal/confirmation-modal';
 import { List as ListModel } from '../../models/list';
 import { Card as CardModel } from '../../models/card';
 import { CardService } from '../../services/card/card';
@@ -7,7 +9,7 @@ import { ListService } from '../../services/list/list';
 
 @Component({
   selector: 'app-list',
-  imports: [Card],
+  imports: [Card, TitleInputModal, ConfirmationModal],
   templateUrl: './list.html',
   styleUrl: './list.css'
 })
@@ -24,6 +26,15 @@ export class List implements OnInit, OnChanges, OnDestroy {
   isMenuOpen = false;
   isDragOver = false;
   private documentClickListener?: (event: Event) => void;
+
+
+  isTitleModalOpen = false;
+  titleModalLoading = false;
+  titleModalType: 'list' | 'card' = 'list';
+  
+  isConfirmModalOpen = false;
+  confirmModalLoading = false;
+  confirmAction: 'delete-list' | null = null;
 
   ngOnInit() {
     this.updateListData();
@@ -72,7 +83,6 @@ export class List implements OnInit, OnChanges, OnDestroy {
     return this.listData?.id;
   }
 
-
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.dataTransfer!.dropEffect = 'move';
@@ -84,7 +94,6 @@ export class List implements OnInit, OnChanges, OnDestroy {
   }
 
   onDragLeave(event: DragEvent) {
-  
     const rect = (event.currentTarget as Element).getBoundingClientRect();
     const x = event.clientX;
     const y = event.clientY;
@@ -106,19 +115,15 @@ export class List implements OnInit, OnChanges, OnDestroy {
       const cardData = JSON.parse(dragData);
       const { cardId, sourceListId } = cardData;
       
- 
       if (sourceListId === this.listId) {
         this.cdr.detectChanges();
         return;
       }
       
-    
       const newOrder = this.listCards.length;
       
-    
       this.cardService.moveCard(cardId, this.listId, newOrder).subscribe({
         next: (response) => {
-          
           this.listUpdated.emit();
         },
         error: (error) => {
@@ -134,20 +139,10 @@ export class List implements OnInit, OnChanges, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  createCard() {
-    const title = prompt('Enter card title:');
-    if (title && this.listId) {
-      this.cardService.createCard(this.listId, title).subscribe({
-        next: (card) => {
-          this.listCards.push(card);
-          this.listUpdated.emit(); 
-        },
-        error: (error) => {
-          console.error('Error creating card:', error);
-          alert('Failed to create card. Please try again.');
-        }
-      });
-    }
+  openCreateCardModal() {
+    this.titleModalType = 'card';
+    this.isTitleModalOpen = true;
+    this.cdr.detectChanges();
   }
 
   toggleMenu(event: Event) {
@@ -157,62 +152,160 @@ export class List implements OnInit, OnChanges, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  editList(event: Event) {
+  openEditListModal(event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    
-    if (!this.listData?.id) return;
+    this.titleModalType = 'list';
+    this.isTitleModalOpen = true;
+    this.isMenuOpen = false;
+    this.cdr.detectChanges();
+  }
 
-    const newTitle = prompt('Enter new list title:', this.displayTitle);
-    if (newTitle && newTitle.trim() && newTitle !== this.displayTitle) {
-      this.listService.updateList(this.listData.id, newTitle.trim()).subscribe({
-        next: (updatedList) => {
-          if (this.listData) {
-            this.listData.title = updatedList.title;
-          }
-          this.listUpdated.emit();
-          this.isMenuOpen = false;
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error updating list:', error);
-          alert('Failed to update list. Please try again.');
-          this.isMenuOpen = false;
-          this.cdr.detectChanges();
-        }
-      });
-    } else {
-      this.isMenuOpen = false;
-      this.cdr.detectChanges();
+  openDeleteListModal(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.confirmAction = 'delete-list';
+    this.isConfirmModalOpen = true;
+    this.isMenuOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  onTitleModalClosed() {
+    this.isTitleModalOpen = false;
+    this.titleModalLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  onTitleSubmitted(title: string) {
+    if (this.titleModalType === 'list') {
+      this.updateListTitle(title);
+    } else if (this.titleModalType === 'card') {
+      this.createCardWithTitle(title);
     }
   }
 
-  deleteList(event: Event) {
-    event.stopPropagation();
-    event.preventDefault();
-    
+  private updateListTitle(title: string) {
     if (!this.listData?.id) return;
 
-    const confirmDelete = confirm(`Are you sure you want to delete "${this.displayTitle}" and all its cards?`);
-    if (!confirmDelete) {
-      this.isMenuOpen = false;
-      this.cdr.detectChanges();
-      return;
-    }
+    this.titleModalLoading = true;
+    this.listService.updateList(this.listData.id, title).subscribe({
+      next: (updatedList) => {
+        if (this.listData) {
+          this.listData.title = updatedList.title;
+        }
+        this.listUpdated.emit();
+        this.onTitleModalClosed();
+      },
+      error: (error) => {
+        console.error('Error updating list:', error);
+        alert('Failed to update list. Please try again.');
+        this.onTitleModalClosed();
+      }
+    });
+  }
 
+  private createCardWithTitle(title: string) {
+    if (!this.listId) return;
+
+    this.titleModalLoading = true;
+    this.cardService.createCard(this.listId, title).subscribe({
+      next: (card) => {
+        this.listCards.push(card);
+        this.listUpdated.emit();
+        this.onTitleModalClosed();
+      },
+      error: (error) => {
+        console.error('Error creating card:', error);
+        alert('Failed to create card. Please try again.');
+        this.onTitleModalClosed();
+      }
+    });
+  }
+
+  onConfirmModalClosed() {
+    this.isConfirmModalOpen = false;
+    this.confirmModalLoading = false;
+    this.confirmAction = null;
+    this.cdr.detectChanges();
+  }
+
+  onConfirmModalConfirmed() {
+    if (this.confirmAction === 'delete-list') {
+      this.handleDeleteList();
+    }
+  }
+
+  onConfirmModalCancelled() {
+    this.onConfirmModalClosed();
+  }
+
+  private handleDeleteList() {
+    if (!this.listData?.id) return;
+
+    this.confirmModalLoading = true;
     this.listService.deleteList(this.listData.id).subscribe({
       next: () => {
         this.listUpdated.emit();
-        this.isMenuOpen = false;
-        this.cdr.detectChanges();
+        this.onConfirmModalClosed();
       },
       error: (error) => {
         console.error('Error deleting list:', error);
         alert('Failed to delete list. Please try again.');
-        this.isMenuOpen = false;
-        this.cdr.detectChanges();
+        this.onConfirmModalClosed();
       }
     });
+  }
+
+  
+  get titleModalTitle(): string {
+    if (this.titleModalType === 'list') {
+      return 'Edit List Title';
+    }
+    return 'Create New Card';
+  }
+
+  get titleModalPlaceholder(): string {
+    if (this.titleModalType === 'list') {
+      return 'Enter list title...';
+    }
+    return 'Enter card title...';
+  }
+
+  get titleModalCurrentValue(): string {
+    if (this.titleModalType === 'list') {
+      return this.listData?.title || '';
+    }
+    return '';
+  }
+
+  get confirmModalTitle(): string {
+    if (this.confirmAction === 'delete-list') {
+      return 'Delete List';
+    }
+    return 'Confirm Action';
+  }
+
+  get confirmModalMessage(): string {
+    if (this.confirmAction === 'delete-list') {
+      return `Are you sure you want to delete "${this.displayTitle}" and all its cards?`;
+    }
+    return 'Are you sure you want to proceed?';
+  }
+
+  get confirmModalIsWarning(): boolean {
+    return this.confirmAction === 'delete-list';
+  }
+
+  get confirmModalConfirmText(): string {
+    if (this.confirmAction === 'delete-list') {
+      return 'Delete List';
+    }
+    return 'Confirm';
+  }
+
+
+  createCard() {
+    this.openCreateCardModal();
   }
 
   onCardUpdated() {
