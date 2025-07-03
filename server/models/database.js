@@ -5,6 +5,7 @@ import User from "./user.js";
 import Board from "./board.js";
 import List from "./list.js";
 import Card from "./card.js";
+import Document from "./document.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ db.User = User.init(sequelize, Sequelize.DataTypes);
 db.Board = Board.init(sequelize, Sequelize.DataTypes);
 db.List = List.init(sequelize, Sequelize.DataTypes);
 db.Card = Card.init(sequelize, Sequelize.DataTypes);
+db.Document = Document.init(sequelize, Sequelize.DataTypes);
 
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {

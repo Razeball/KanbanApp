@@ -17,8 +17,7 @@ export class Navbar implements OnInit {
   isAuthenticated = false;
 
   ngOnInit() {
-    
-    this.authService.isAuthenticated().subscribe(authenticated => {
+    this.authService.authState$.subscribe(authenticated => {
       this.isAuthenticated = authenticated;
       this.cdr.detectChanges();
     });

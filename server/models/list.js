@@ -5,14 +5,14 @@ export default class List extends Model {
     return super.init(
       {
         id: {
-          type: DataTypes.UUID,
+          type: DataTypes.STRING,
           defaultValue: DataTypes.UUIDV1,
           primaryKey: true,
           allowNull: false,
         },
         title: DataTypes.STRING,
         order: DataTypes.INTEGER,
-        boardId: DataTypes.UUID,
+        boardId: DataTypes.STRING,
       },
       {
         sequelize,

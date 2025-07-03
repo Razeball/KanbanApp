@@ -62,15 +62,21 @@ export class DocumentEditor implements OnInit {
   }
 
   private loadDocument(id: string) {
-    const doc = this.documentService.getDocument(id);
-    if (doc) {
-      this.document = { ...doc };
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    } else {
-
-      this.router.navigate(['/documents']);
-    }
+    this.documentService.getDocument(id).subscribe({
+      next: (doc) => {
+        if (doc) {
+          this.document = { ...doc };
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        } else {
+          this.router.navigate(['/documents']);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading document:', error);
+        this.router.navigate(['/documents']);
+      }
+    });
   }
 
   private setupAutoSave() {
@@ -110,18 +116,25 @@ export class DocumentEditor implements OnInit {
 
     this.isSaving = true;
     
-    const updated = this.documentService.updateDocument(this.document.id, {
+    this.documentService.updateDocument(this.document.id, {
       title: this.document.title,
       content: this.document.content
+    }).subscribe({
+      next: (updated) => {
+        if (updated) {
+          this.document = updated;
+          this.hasUnsavedChanges = false;
+          this.lastSaved = new Date();
+        }
+        this.isSaving = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error saving document:', error);
+        this.isSaving = false;
+        this.cdr.detectChanges();
+      }
     });
-
-    if (updated) {
-      this.document = updated;
-      this.hasUnsavedChanges = false;
-      this.lastSaved = new Date();
-      this.isSaving = false;
-      this.cdr.detectChanges();
-    }
   }
 
   toggleDropdown(event: Event) {
@@ -147,8 +160,19 @@ export class DocumentEditor implements OnInit {
     
     const confirmed = confirm(`Are you sure you want to delete "${this.document.title}"? This action cannot be undone.`);
     if (confirmed) {
-      this.documentService.deleteDocument(this.document.id);
-      this.router.navigate(['/documents']);
+      this.documentService.deleteDocument(this.document.id).subscribe({
+        next: (success) => {
+          if (success) {
+            this.router.navigate(['/documents']);
+          } else {
+            alert('Failed to delete document. Please try again.');
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting document:', error);
+          alert('Failed to delete document. Please try again.');
+        }
+      });
     }
     this.closeDropdown();
   }

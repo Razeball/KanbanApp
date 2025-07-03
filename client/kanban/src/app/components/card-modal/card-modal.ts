@@ -265,13 +265,17 @@ export class CardModal implements OnInit {
       this.editedDescription.trim()
     ).subscribe({
       next: (updatedCard) => {
-        const cardToEmit: CardModel = {
-          ...this.cardData!,
-          title: this.editedTitle.trim(),
-          description: this.editedDescription.trim()
-        };
-        this.cardUpdated.emit(cardToEmit);
-        this.closeModal();
+        if (updatedCard) {
+          const cardToEmit: CardModel = {
+            ...this.cardData!,
+            title: this.editedTitle.trim(),
+            description: this.editedDescription.trim()
+          };
+          this.cardUpdated.emit(cardToEmit);
+          this.closeModal();
+        } else {
+          alert('Failed to update card. Please try again.');
+        }
         this.isLoading = false;
       },
       error: (error) => {

@@ -170,12 +170,15 @@ export class Card implements OnInit, OnDestroy {
     }
 
     this.cardService.deleteCard(this.cardData.id).subscribe({
-      next: () => {
-        
+      next: (success) => {
+        if (success) {
         if (this.cardData?.id) {
           this.localStorageService.removeCardCompletionState(this.cardData.id);
         }
         this.cardUpdated.emit();
+        } else {
+          alert('Failed to delete card. Please try again.');
+        }
         this.isMenuOpen = false;
         this.cdr.detectChanges();
       },

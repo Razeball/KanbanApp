@@ -6,12 +6,12 @@ export default class Board extends Model {
       {
         id: {
           allowNull: false,
-          type: DataTypes.UUID,
+          type: DataTypes.STRING,
           defaultValue: DataTypes.UUIDV4,
           primaryKey: true,
         },
         title: DataTypes.STRING,
-        userId: DataTypes.UUID,
+        userId: DataTypes.STRING,
       },
       {
         sequelize,

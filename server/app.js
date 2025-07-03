@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import boardRoutes from "./routes/boardRoutes.js";
 import listRoutes from "./routes/listRoutes.js";
 import cardRoutes from "./routes/cardRoutes.js";
+import documentRoutes from "./routes/documentRoutes.js";
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use("/auth", authRoutes);
 app.use("/board", boardRoutes);
 app.use("/list", listRoutes);
 app.use("/card", cardRoutes);
+app.use("/document", documentRoutes);
 
 export default app;

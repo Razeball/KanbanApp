@@ -54,10 +54,12 @@ export class Board implements OnInit, OnDestroy {
       }
     });
     this.setupDocumentClickListener();
+    this.setupStorageListener();
   }
 
   ngOnDestroy() {
     this.removeDocumentClickListener();
+    this.removeStorageListener();
   }
 
   private setupDocumentClickListener() {
@@ -80,6 +82,19 @@ export class Board implements OnInit, OnDestroy {
     }
   }
 
+  private setupStorageListener() {
+    window.addEventListener('storagePreferenceChanged', () => {
+      if (this.boardId) {
+        setTimeout(() => {
+          this.loadBoard();
+        }, 1000); 
+      }
+    });
+  }
+
+  private removeStorageListener() {
+  }
+
   loadBoard() {
     if (!this.boardId) return;
     
@@ -95,13 +110,18 @@ export class Board implements OnInit, OnDestroy {
     this.boardService.getBoardById(this.boardId).subscribe({
       next: (board) => {
         setTimeout(() => {
-          this.boardData = board;
-          this.boardLists = board.Lists || [];
-          this.isLoading = false;
-          this.error = null;
-          
-          this.boardDataSubject.next(board);
-          this.listsSubject.next(this.boardLists);
+          if (board) {
+            this.boardData = board;
+            this.boardLists = board.Lists || [];
+            this.isLoading = false;
+            this.error = null;
+            
+            this.boardDataSubject.next(board);
+            this.listsSubject.next(this.boardLists);
+          } else {
+            this.error = 'Board not found';
+            this.isLoading = false;
+          }
           
           this.cdr.detectChanges();
         }, 0);
@@ -160,7 +180,7 @@ export class Board implements OnInit, OnDestroy {
     this.titleModalLoading = true;
     this.boardService.updateBoard(this.boardData.id, title).subscribe({
       next: (updatedBoard) => {
-        if (this.boardData) {
+        if (this.boardData && updatedBoard) {
           this.boardData.title = updatedBoard.title;
         }
         this.onTitleModalClosed();

@@ -5,7 +5,7 @@ export default class Card extends Model {
     return super.init(
       {
         id: {
-          type: DataTypes.UUID,
+          type: DataTypes.STRING,
           defaultValue: DataTypes.UUIDV1,
           primaryKey: true,
           allowNull: false,
@@ -13,7 +13,7 @@ export default class Card extends Model {
         title: DataTypes.STRING,
         description: DataTypes.STRING,
         order: DataTypes.INTEGER,
-        listId: DataTypes.UUID,
+        listId: DataTypes.STRING,
       },
       {
         sequelize,

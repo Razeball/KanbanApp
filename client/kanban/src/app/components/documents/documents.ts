@@ -128,10 +128,20 @@ export class Documents implements OnInit {
 
   onCreateDocument(title: string) {
     if (title.trim()) {
-      const newDocument = this.documentService.createDocument(title.trim());
-      this.router.navigate(['/document', newDocument.id]);
+      this.documentService.createDocument(title.trim()).subscribe({
+        next: (newDocument) => {
+          this.router.navigate(['/document', newDocument.id]);
+          this.closeCreateModal();
+        },
+        error: (error) => {
+          console.error('Error creating document:', error);
+          alert('Failed to create document. Please try again.');
+          this.closeCreateModal();
+        }
+      });
+    } else {
+      this.closeCreateModal();
     }
-    this.closeCreateModal();
   }
 
   openDocument(document: Document) {
@@ -154,8 +164,21 @@ export class Documents implements OnInit {
 
   deleteDocument() {
     if (this.selectedDocument) {
-      this.documentService.deleteDocument(this.selectedDocument.id);
-      this.closeDeleteModal();
+      this.documentService.deleteDocument(this.selectedDocument.id).subscribe({
+        next: (success) => {
+          if (success) {
+            this.loadDocuments(); 
+          } else {
+            alert('Failed to delete document. Please try again.');
+          }
+          this.closeDeleteModal();
+        },
+        error: (error) => {
+          console.error('Error deleting document:', error);
+          alert('Failed to delete document. Please try again.');
+          this.closeDeleteModal();
+        }
+      });
     }
   }
 

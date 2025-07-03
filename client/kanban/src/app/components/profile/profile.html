@@ -1,0 +1,167 @@
+<div class="min-h-screen bg-gray-900 py-8">
+  <div class="max-w-4xl mx-auto px-4">
+ 
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white mb-2">Profile Settings</h1>
+          <p class="text-gray-400">Manage your account and data preferences</p>
+        </div>
+        <button 
+          (click)="logout()"
+          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+
+   
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-6" >
+      <h2 class="text-xl font-semibold text-white mb-4">Account Information</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-700 rounded-lg p-4">
+          <label class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+          <p class="text-white text-lg">{{ user?.username || 'Loading...' }}</p>
+        </div>
+        <div class="bg-gray-700 rounded-lg p-4">
+          <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+          <p class="text-white text-lg">{{ user?.email || 'Loading...' }}</p>
+        </div>
+      </div>
+    </div>
+
+  
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold text-white mb-4">Data Storage Settings</h2>
+      
+      <div class="bg-gray-700 rounded-lg p-4 mb-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-medium text-white mb-1">Cloud Storage</h3>
+            <p class="text-gray-400 text-sm">
+              Store your data on our servers for access across devices
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="serverStorageEnabled"
+              (change)="onStorageSettingChange()"
+              [disabled]="isSyncing"
+              class="sr-only peer"
+            >
+            <div class="relative w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+        
+        <div class="mt-3 text-sm" [class]="isSyncing ? 'text-yellow-400' : 'text-gray-400'">
+          <span *ngIf="isSyncing">🔄 Syncing data...</span>
+          <span *ngIf="!isSyncing && serverStorageEnabled">✅ Data is stored on cloud servers</span>
+          <span *ngIf="!isSyncing && !serverStorageEnabled">💾 Data is stored locally on this device</span>
+        </div>
+      </div>
+
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-700 rounded-lg p-4">
+          <h4 class="text-lg font-medium text-white mb-3">Local Storage</h4>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Documents:</span>
+              <span class="text-white">{{ localDocumentsCount }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Boards:</span>
+              <span class="text-white">{{ localBoardsCount }}</span>
+            </div>
+            <div class="flex justify-between font-semibold">
+              <span class="text-gray-300">Total:</span>
+              <span class="text-white">{{ localDocumentsCount + localBoardsCount }}</span>
+            </div>
+          </div>
+          
+          <button 
+            (click)="clearLocalData()"
+            class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors text-sm"
+            [disabled]="localDocumentsCount + localBoardsCount === 0"
+          >
+            Clear Local Data
+          </button>
+        </div>
+
+        <div class="bg-gray-700 rounded-lg p-4" >
+          <h4 class="text-lg font-medium text-white mb-3">Cloud Storage</h4>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Documents:</span>
+              <span class="text-white">{{ serverDocumentsCount }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Boards:</span>
+              <span class="text-white">{{ serverBoardsCount }}</span>
+            </div>
+            <div class="flex justify-between font-semibold">
+              <span class="text-gray-300">Total:</span>
+              <span class="text-white">{{ serverDocumentsCount + serverBoardsCount }}</span>
+            </div>
+          </div>
+          
+          <div class="mt-4 text-sm text-gray-400">
+            <span *ngIf="serverStorageEnabled">🌐 Currently active</span>
+            <span *ngIf="!serverStorageEnabled">📱 Local mode active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold text-white mb-4">Notification Preferences</h2>
+      
+      <div class="bg-gray-700 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-medium text-white mb-1">Login Reminders</h3>
+            <p class="text-gray-400 text-sm">
+              Show reminders to sign in for cloud sync and data backup
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="loginRemindersEnabled"
+              (change)="onLoginReminderToggle()"
+              class="sr-only peer"
+            >
+            <div class="relative w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+        
+        <div class="mt-3 text-sm" [class]="loginRemindersEnabled ? 'text-green-400' : 'text-gray-400'">
+          <span *ngIf="loginRemindersEnabled">🔔 Reminders enabled</span>
+          <span *ngIf="!loginRemindersEnabled">🔕 Reminders disabled</span>
+        </div>
+      </div>
+    </div>
+
+  
+    <div class="bg-blue-900 rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-white mb-3">💡 How Data Storage Works</h3>
+      <div class="space-y-3 text-blue-100">
+        <p class="flex items-start">
+          <span class="mr-2">🌐</span>
+          <span><strong>Cloud Storage:</strong> Your data is stored on our secure servers and synced across all your devices. Perfect for accessing your work anywhere.</span>
+        </p>
+        <p class="flex items-start">
+          <span class="mr-2">💾</span>
+          <span><strong>Local Storage:</strong> Your data is stored only on this device. Great for privacy and offline work, but won't sync to other devices.</span>
+        </p>
+        <p class="flex items-start">
+          <span class="mr-2">🔄</span>
+          <span><strong>Switching Modes:</strong> When you change settings, we automatically migrate your existing data to the new storage location.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div> 

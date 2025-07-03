@@ -1,0 +1,101 @@
+
+.peer:checked + div {
+  background-color: rgb(37 99 235);
+}
+
+.peer:checked + div::after {
+  transform: translateX(100%);
+}
+
+
+.transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+
+:host {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(107 114 128) rgb(31 41 55);
+}
+
+:host ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+:host ::-webkit-scrollbar-track {
+  background: rgb(31 41 55);
+  border-radius: 3px;
+}
+
+:host ::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+  border-radius: 3px;
+  border: none;
+}
+
+:host ::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+:host ::-webkit-scrollbar-corner {
+  background: rgb(31 41 55);
+}
+
+
+.bg-gray-700:hover {
+  background-color: rgb(55 65 81);
+  transition: background-color 0.2s ease;
+}
+
+input:focus,
+button:focus {
+  outline: 2px solid rgb(59 130 246);
+  outline-offset: 2px;
+}
+
+
+.status-indicator {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.status-indicator.syncing {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+} 

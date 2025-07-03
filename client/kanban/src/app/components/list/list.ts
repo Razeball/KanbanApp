@@ -123,8 +123,12 @@ export class List implements OnInit, OnChanges, OnDestroy {
       const newOrder = this.listCards.length;
       
       this.cardService.moveCard(cardId, this.listId, newOrder).subscribe({
-        next: (response) => {
-          this.listUpdated.emit();
+        next: (success) => {
+          if (success) {
+            this.listUpdated.emit();
+          } else {
+            alert('Failed to move card. Please try again.');
+          }
         },
         error: (error) => {
           console.error('Error moving card:', error);
@@ -190,7 +194,7 @@ export class List implements OnInit, OnChanges, OnDestroy {
     this.titleModalLoading = true;
     this.listService.updateList(this.listData.id, title).subscribe({
       next: (updatedList) => {
-        if (this.listData) {
+        if (this.listData && updatedList) {
           this.listData.title = updatedList.title;
         }
         this.listUpdated.emit();

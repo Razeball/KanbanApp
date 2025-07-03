@@ -1,51 +1,46 @@
 import { Router } from "express";
 import passport from "passport";
 import {
-  createBoard,
-  createCompleteBoard,
-  overwriteBoard,
-  deleteBoard,
-  getBoardById,
-  getBoards,
-  updateBoard,
-} from "../controllers/boardController.js";
+  createDocument,
+  overwriteDocument,
+  getDocuments,
+  getDocument,
+  updateDocument,
+  deleteDocument,
+} from "../controllers/documentController.js";
 
 const router = Router();
 
 router.post(
-  "/create",
+  "/",
   passport.authenticate("jwt", { session: false }),
-  createBoard
-);
-
-router.post(
-  "/create-complete",
-  passport.authenticate("jwt", { session: false }),
-  createCompleteBoard
+  createDocument
 );
 
 router.put(
   "/overwrite/:id",
   passport.authenticate("jwt", { session: false }),
-  overwriteBoard
+  overwriteDocument
 );
 
-router.get("/all", passport.authenticate("jwt", { session: false }), getBoards);
+router.get("/", passport.authenticate("jwt", { session: false }), getDocuments);
+
 router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),
-  getBoardById
+  getDocument
 );
 
 router.put(
-  "/update/:id",
+  "/:id",
   passport.authenticate("jwt", { session: false }),
-  updateBoard
+  updateDocument
 );
 
 router.delete(
   "/:id",
   passport.authenticate("jwt", { session: false }),
-  deleteBoard
+  deleteDocument
 );
+
 export default router;
