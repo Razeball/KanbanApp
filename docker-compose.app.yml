@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  kanban-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+    env_file:
+      - .env 

@@ -5,9 +5,10 @@ services:
     github:
       repo: https://github.com/Razeball/KanbanApp
       branch: main
-    dockerfile_path: Dockerfile
+    docker_compose_file_path: ./docker-compose.app.yml
     instance_count: 1
     instance_size_slug: basic-s
+    http_port: 8080
     envs:
       - key: NODE_ENV
         value: production

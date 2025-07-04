@@ -1,0 +1,6 @@
+{
+  "name": "kanban-app-temp",
+  "version": "1.0.0",
+  "description": "Temporary package.json to force Docker deployment",
+  "private": true
+} 
