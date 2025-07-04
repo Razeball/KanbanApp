@@ -1,4 +1,4 @@
-# KanBan Board Application
+# ProDoku Board Application
 
 A full-stack collaborative KanBan board application built with Angular and Node.js, featuring real-time collaboration, board management, and Markdown export/import capabilities.
 
