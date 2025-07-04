@@ -113,6 +113,13 @@ export class CollaborationComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const useServer = this.authService.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
+    if (!useServer) {
+      this.error = 'Collaboration is only available when using server storage';
+      setTimeout(() => this.error = null, 5000);
+      return;
+    }
+
     this.isLoading = true;
     this.error = null;
 
@@ -121,6 +128,12 @@ export class CollaborationComponent implements OnInit, OnDestroy {
 
     this.boardService.toggleCollaboration(this.boardId, endpoint).subscribe({
       next: (response) => {
+        if (response.message && response.message.includes('only available when using server storage')) {
+          this.error = response.message;
+          this.isLoading = false;
+          return;
+        }
+        
         const wasEnabled = this.isCollaborationEnabled;
         this.isCollaborationEnabled = !this.isCollaborationEnabled;
         this.shareCode = response.shareCode || '';
@@ -149,11 +162,24 @@ export class CollaborationComponent implements OnInit, OnDestroy {
   generateNewShareCode() {
     if (!this.boardId) return;
 
+    const useServer = this.authService.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
+    if (!useServer) {
+      this.error = 'Share codes are only available when using server storage';
+      setTimeout(() => this.error = null, 5000);
+      return;
+    }
+
     this.isLoading = true;
     this.error = null;
 
     this.boardService.generateNewShareCode(this.boardId).subscribe({
       next: (response) => {
+        if (response.message && response.message.includes('only available when using server storage')) {
+          this.error = response.message;
+          this.isLoading = false;
+          return;
+        }
+        
         this.shareCode = response.shareCode;
         this.isLoading = false;
       },
@@ -194,6 +220,10 @@ export class CollaborationComponent implements OnInit, OnDestroy {
 
   get canAddCollaborators(): boolean {
     return this.collaboratorCount < this.maxCollaborators;
+  }
+
+  get isLocalMode(): boolean {
+    return !this.authService.getCurrentAuthState() || localStorage.getItem('serverStorageEnabled') === 'false';
   }
 
   getCollaboratorDisplayName(collaborator: Collaborator): string {

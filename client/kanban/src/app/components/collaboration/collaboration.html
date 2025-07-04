@@ -2,6 +2,13 @@
   <div class="collaboration-header">
     <h3 class="text-lg font-semibold text-white mb-4">Collaboration</h3>
     
+    @if (isLocalMode) {
+      <div class="bg-yellow-500 text-black p-3 rounded-md mb-4">
+        <p class="font-medium">Local Mode Active</p>
+        <p class="text-sm">Collaboration features are only available when using server storage. Please log in and enable server storage to use collaboration.</p>
+      </div>
+    }
+    
     @if (error) {
       <div class="bg-red-500 text-white p-3 rounded-md mb-4">
         {{ error }}
@@ -12,11 +19,12 @@
       <div class="flex items-center space-x-2">
         <label class="text-gray-300">Enable Collaboration</label>
         <button 
-          [disabled]="isLoading"
+          [disabled]="isLoading || isLocalMode"
           (click)="toggleCollaboration()"
           class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           [class.bg-indigo-600]="isCollaborationEnabled"
-          [class.bg-gray-600]="!isCollaborationEnabled">
+          [class.bg-gray-600]="!isCollaborationEnabled"
+          [class.opacity-50]="isLocalMode">
           <span class="sr-only">Enable collaboration</span>
           <span 
             class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"

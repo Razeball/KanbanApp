@@ -239,6 +239,15 @@ export class BoardService {
   }
 
   toggleCollaboration(boardId: string, endpoint: string): Observable<any> {
+    const useServer = this.auth.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
+    
+    if (!useServer) {
+      return of({ 
+        message: 'Collaboration is only available when using server storage',
+        shareCode: null 
+      });
+    }
+    
     return this.http.post<any>(`${this.apiUrl}/board/${endpoint}/${boardId}`, {}, { withCredentials: true })
       .pipe(
         catchError(error => {
@@ -249,6 +258,15 @@ export class BoardService {
   }
 
   generateNewShareCode(boardId: string): Observable<any> {
+    const useServer = this.auth.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
+    
+    if (!useServer) {
+      return of({ 
+        message: 'Share codes are only available when using server storage',
+        shareCode: null 
+      });
+    }
+    
     return this.http.post<any>(`${this.apiUrl}/board/generate-code/${boardId}`, {}, { withCredentials: true })
       .pipe(
         catchError(error => {
@@ -259,6 +277,15 @@ export class BoardService {
   }
 
   joinBoard(shareCode: string): Observable<any> {
+    const useServer = this.auth.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
+    
+    if (!useServer) {
+      return of({ 
+        message: 'Joining boards is only available when using server storage',
+        success: false 
+      });
+    }
+    
     return this.http.post<any>(`${this.apiUrl}/board/join`, { shareCode }, { withCredentials: true })
       .pipe(
         catchError(error => {
@@ -269,6 +296,12 @@ export class BoardService {
   }
 
   getBoardByShareCode(shareCode: string): Observable<Board | null> {
+    const useServer = this.auth.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
+    
+    if (!useServer) {
+      return of(null);
+    }
+    
     return this.http.get<Board>(`${this.apiUrl}/board/share/${shareCode}`)
       .pipe(
         catchError(error => {
