@@ -1,8 +1,6 @@
-"use strict";
-
 import { DataTypes } from "sequelize";
 
-export const up = async (queryInterface, Sequelize) => {
+export async function up(queryInterface, Sequelize) {
   try {
     try {
       await queryInterface.removeConstraint(
@@ -73,8 +71,8 @@ export const up = async (queryInterface, Sequelize) => {
     console.error("Migration error:", error);
     throw error;
   }
-};
+}
 
-export const down = async (queryInterface, Sequelize) => {
+export async function down(queryInterface, Sequelize) {
   console.log("Rollback not implemented for this migration");
-};
+}

@@ -59,7 +59,16 @@ async function runMigrations() {
       const migration = await import(path.join(migrationsPath, file));
 
       try {
-        await migration.up(sequelize.getQueryInterface(), Sequelize);
+        let upFunction;
+        if (migration.default && migration.default.up) {
+          upFunction = migration.default.up;
+        } else if (migration.up) {
+          upFunction = migration.up;
+        } else {
+          throw new Error(`No up function found in migration ${file}`);
+        }
+
+        await upFunction(sequelize.getQueryInterface(), Sequelize);
         console.log(`✓ Migration ${file} completed successfully`);
       } catch (error) {
         console.error(`✗ Migration ${file} failed:`, error.message);
