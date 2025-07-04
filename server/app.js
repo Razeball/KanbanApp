@@ -4,6 +4,7 @@ import passport from "passport";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 import authRoutes from "./routes/authRoutes.js";
 import boardRoutes from "./routes/boardRoutes.js";
@@ -53,13 +54,38 @@ app.use((req, res, next) => {
 });
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/kanban/dist/kanban")));
+  const staticPath = path.join(__dirname, "../client/kanban/dist/kanban");
+  const indexPath = path.join(
+    __dirname,
+    "../client/kanban/dist/kanban/index.html"
+  );
 
-  app.get("*", (req, res) => {
-    res.sendFile(
-      path.join(__dirname, "../client/kanban/dist/kanban/index.html")
-    );
-  });
+  // Check if build files exist
+  if (fs.existsSync(staticPath)) {
+    app.use(express.static(staticPath));
+
+    app.get("*", (req, res) => {
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        console.error("Angular build files not found. Serving API only.");
+        res.status(404).json({
+          error: "Frontend not built",
+          message:
+            "Angular application build files are missing. Please check the build process.",
+        });
+      }
+    });
+  } else {
+    console.error("Angular build directory not found:", staticPath);
+    app.get("*", (req, res) => {
+      res.status(404).json({
+        error: "Frontend not built",
+        message:
+          "Angular application build files are missing. Please check the build process.",
+      });
+    });
+  }
 }
 
 export default app;

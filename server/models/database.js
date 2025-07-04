@@ -25,6 +25,7 @@ if (process.env.DATABASE_URL) {
           ? {
               require: true,
               rejectUnauthorized: false,
+              checkServerIdentity: () => undefined,
             }
           : false,
     },
@@ -39,6 +40,7 @@ if (process.env.DATABASE_URL) {
           ? {
               require: true,
               rejectUnauthorized: false,
+              checkServerIdentity: () => undefined,
             }
           : false,
     },
@@ -53,6 +55,7 @@ if (process.env.DATABASE_URL) {
           ? {
               require: true,
               rejectUnauthorized: false,
+              checkServerIdentity: () => undefined,
             }
           : false,
     },

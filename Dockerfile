@@ -20,7 +20,10 @@ RUN npm install --no-cache && \
 
 # Build Angular application
 WORKDIR /app/client/kanban
-RUN npm run build:prod
+RUN npm run build:prod && \
+    ls -la dist/ && \
+    ls -la dist/kanban/ && \
+    echo "Angular build completed successfully"
 
 # Set working directory back to app root
 WORKDIR /app
