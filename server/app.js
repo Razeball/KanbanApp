@@ -38,12 +38,18 @@ app.use("/card", cardRoutes);
 app.use("/document", documentRoutes);
 
 app.get("/health", (req, res) => {
+  console.log("Health check requested");
   res.status(200).json({
     status: "OK",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || "development",
   });
+});
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
+  next();
 });
 
 if (process.env.NODE_ENV === "production") {

@@ -159,11 +159,20 @@ io.on("connection", (socket) => {
 
 const main = async () => {
   try {
+    console.log("Starting server...");
+    console.log("Environment:", process.env.NODE_ENV);
+    console.log("Port:", process.env.PORT || 3000);
+    console.log(
+      "CORS Origin:",
+      process.env.CORS_ORIGIN || "http://localhost:4200"
+    );
+
     httpServer.listen(process.env.PORT || 3000, () => {
       console.log("Server listening on port", process.env.PORT || 3000);
+      console.log("Server is ready to handle requests");
     });
   } catch (error) {
-    console.error(error);
+    console.error("Failed to start server:", error);
   }
 };
 
