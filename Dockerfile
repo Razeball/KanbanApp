@@ -35,12 +35,9 @@ ENV PORT=8080
 # Expose port
 EXPOSE 8080
 
-# Create a startup script that runs migrations first
-RUN echo '#!/bin/sh\n\
-echo "Running database migrations..."\n\
-cd /app/server && npm run migrate\n\
-echo "Migrations completed. Starting server..."\n\
-cd /app && npm start' > /app/start.sh && chmod +x /app/start.sh
+# Copy and set up the startup script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Start the server with migrations
 CMD ["/app/start.sh"] 
