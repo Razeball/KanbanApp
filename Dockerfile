@@ -1,25 +1,44 @@
-# Use Node.js 20
+# Use Node.js 20 Alpine for smaller image size
 FROM node:20-alpine
+
+# Install necessary build tools
+RUN apk add --no-cache python3 make g++
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy root package.json first
 COPY package*.json ./
+
+# Copy server and client package.json files
 COPY server/package*.json ./server/
 COPY client/kanban/package*.json ./client/kanban/
 
-# Install dependencies
-RUN npm run install:all
+# Install root dependencies
+RUN npm install
 
-# Copy source code
+# Install server dependencies
+WORKDIR /app/server
+RUN npm install --production
+
+# Install client dependencies
+WORKDIR /app/client/kanban
+RUN npm install
+
+# Copy all source code
+WORKDIR /app
 COPY . .
 
 # Build Angular application
-RUN npm run build:client
+WORKDIR /app/client/kanban
+RUN npm run build:prod
+
+# Set working directory back to app root
+WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
+ENV PORT=8080
 
 # Expose port
 EXPOSE 8080
