@@ -88,6 +88,14 @@ export class Board implements OnInit, OnDestroy {
     return this.currentUser && this.boardData && this.currentUser.id === this.boardData.userId;
   }
 
+  get canManageCollaboration(): boolean {
+    return this.isOwner && this.authService.getCurrentAuthState();
+  }
+
+  get canParticipateInCollaboration(): boolean {
+    return this.boardData?.isCollaborationEnabled || false;
+  }
+
   private setupDocumentClickListener() {
     this.documentClickListener = (event: Event) => {
       const target = event.target as HTMLElement;

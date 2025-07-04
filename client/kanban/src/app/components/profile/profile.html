@@ -45,12 +45,12 @@
               Store your data on our servers for access across devices
             </p>
           </div>
-          <label class="relative inline-flex items-center cursor-pointer">
+          <label class="relative inline-flex items-center cursor-pointer" [class.opacity-50]="!auth.getCurrentAuthState()">
             <input 
               type="checkbox" 
               [(ngModel)]="serverStorageEnabled"
               (change)="onStorageSettingChange()"
-              [disabled]="isSyncing"
+              [disabled]="isSyncing || !auth.getCurrentAuthState()"
               class="sr-only peer"
             >
             <div class="relative w-11 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-[calc(100%-20px)] peer-checked:after:border-white after:content-[''] after:absolute after:top-0 after:left-0 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -59,8 +59,9 @@
         
         <div class="mt-3 text-sm" [class]="isSyncing ? 'text-yellow-400' : 'text-gray-400'">
           <span *ngIf="isSyncing">🔄 Syncing data...</span>
-          <span *ngIf="!isSyncing && serverStorageEnabled">✅ Data is stored on cloud servers</span>
+          <span *ngIf="!isSyncing && serverStorageEnabled && auth.getCurrentAuthState()">✅ Data is stored on cloud servers</span>
           <span *ngIf="!isSyncing && !serverStorageEnabled">💾 Data is stored locally on this device</span>
+          <span *ngIf="!auth.getCurrentAuthState()" class="text-yellow-400">⚠️ Login required for cloud storage</span>
         </div>
       </div>
 

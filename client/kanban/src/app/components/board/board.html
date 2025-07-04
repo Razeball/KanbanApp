@@ -47,10 +47,11 @@
                             Add List
                         </button>
                         
-                        @if (isOwner) {
+                        @if (canManageCollaboration || canParticipateInCollaboration) {
                             <app-collaboration 
                                 [boardId]="boardId || ''"
                                 [boardData]="boardData"
+                                [isOwner]="canManageCollaboration"
                                 (boardUpdated)="onBoardUpdated($event)"
                                 (collaborationToggled)="onCollaborationToggled($event)">
                             </app-collaboration>

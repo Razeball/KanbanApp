@@ -26,11 +26,22 @@ export class Auth {
       .subscribe({
         next: (response) => {
           this.authStateSubject.next(response.authenticated);
+          if (!response.authenticated) {
+            this.forceLocalStorageMode();
+          }
         },
         error: () => {
           this.authStateSubject.next(false);
+          this.forceLocalStorageMode();
         }
       });
+  }
+
+  private forceLocalStorageMode() {
+    localStorage.setItem('serverStorageEnabled', 'false');
+    window.dispatchEvent(new CustomEvent('storagePreferenceChanged', {
+      detail: { enabled: false }
+    }));
   }
 
   register(user: User) {
@@ -54,10 +65,12 @@ export class Auth {
     return this.http.get(`${this.apiUrl}/auth/logout`, { withCredentials: true }).pipe(
       tap(() => {
         this.authStateSubject.next(false);
+        this.forceLocalStorageMode();
       }),
       catchError(error => {
         console.error('Logout error:', error);
         this.authStateSubject.next(false);
+        this.forceLocalStorageMode();
         return of(null);
       })
     );

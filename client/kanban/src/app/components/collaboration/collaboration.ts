@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 export class CollaborationComponent implements OnInit, OnDestroy {
   @Input() boardId: string = '';
   @Input() boardData: any = null;
+  @Input() isOwner: boolean = false;
   @Output() boardUpdated = new EventEmitter<any>();
   @Output() collaborationToggled = new EventEmitter<boolean>();
 
@@ -107,6 +108,12 @@ export class CollaborationComponent implements OnInit, OnDestroy {
   }
 
   toggleCollaboration() {
+    if (!this.isOwner) {
+      this.error = 'Only board owners can enable/disable collaboration';
+      setTimeout(() => this.error = null, 5000);
+      return;
+    }
+
     if (!this.boardId || !this.isUserAuthenticated()) {
       this.error = 'You must be logged in to enable collaboration';
       setTimeout(() => this.error = null, 5000);
@@ -160,6 +167,12 @@ export class CollaborationComponent implements OnInit, OnDestroy {
   }
 
   generateNewShareCode() {
+    if (!this.isOwner) {
+      this.error = 'Only board owners can generate share codes';
+      setTimeout(() => this.error = null, 5000);
+      return;
+    }
+
     if (!this.boardId) return;
 
     const useServer = this.authService.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
@@ -224,6 +237,10 @@ export class CollaborationComponent implements OnInit, OnDestroy {
 
   get isLocalMode(): boolean {
     return !this.authService.getCurrentAuthState() || localStorage.getItem('serverStorageEnabled') === 'false';
+  }
+
+  get canManageCollaboration(): boolean {
+    return this.isOwner && this.authService.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
   }
 
   getCollaboratorDisplayName(collaborator: Collaborator): string {

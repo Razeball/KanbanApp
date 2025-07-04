@@ -18,7 +18,7 @@ import { User } from '../../models/user';
   styleUrls: ['./profile.css']
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  private auth = inject(Auth);
+  public auth = inject(Auth);
   private router = inject(Router);
   private documentService = inject(DocumentService);
   private boardService = inject(BoardService);
@@ -100,9 +100,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private loadStoragePreference() {
+    const isAuthenticated = this.auth.getCurrentAuthState();
+    
+    if (!isAuthenticated) {
+      this.serverStorageEnabled = false;
+      localStorage.setItem('serverStorageEnabled', 'false');
+      return;
+    }
+    
     const preference = localStorage.getItem('serverStorageEnabled');
     if (preference === null) {
-      this.serverStorageEnabled = this.auth.getCurrentAuthState();
+      this.serverStorageEnabled = isAuthenticated;
     } else {
       this.serverStorageEnabled = preference === 'true';
     }
@@ -113,6 +121,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   onStorageSettingChange() {
+    if (!this.auth.getCurrentAuthState()) {
+      this.serverStorageEnabled = false;
+      localStorage.setItem('serverStorageEnabled', 'false');
+      return;
+    }
+    
     const oldPreference = this.serverStorageEnabled;
     
     localStorage.setItem('serverStorageEnabled', this.serverStorageEnabled.toString());
