@@ -23,6 +23,7 @@
     "restore": "bash scripts/restore.sh",
     "migrate": "cd server && npm run migrate",
     "migrate:undo": "cd server && npm run migrate:undo",
+    "migrate:manual": "cd server && npm run migrate:manual",
     "seed": "cd server && npm run seed"
   },
   "repository": {
