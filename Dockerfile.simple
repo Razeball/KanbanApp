@@ -4,16 +4,13 @@ FROM node:20-alpine
 # Install necessary build tools
 RUN apk add --no-cache python3 make g++
 
-# Clear npm cache to avoid registry issues
-RUN npm cache clean --force
-
 # Set working directory
 WORKDIR /app
 
-# Copy all source code first to avoid layer caching issues
+# Copy all source code first
 COPY . .
 
-# Install all dependencies in one layer
+# Install all dependencies in one layer to avoid caching issues
 RUN npm install --no-cache && \
     cd server && npm install --production --no-cache && \
     cd ../client/kanban && npm install --legacy-peer-deps --no-cache
