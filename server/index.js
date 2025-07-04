@@ -8,7 +8,7 @@ dotenv.config();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:4200",
+    origin: process.env.CORS_ORIGIN || "http://localhost:4200",
     methods: ["GET", "POST"],
     credentials: true,
   },
