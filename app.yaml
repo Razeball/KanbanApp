@@ -1,0 +1,36 @@
+name: kanban-app
+services:
+  - name: kanban-fullstack
+    source_dir: /
+    github:
+      repo: https://github.com/Razeball/KanbanApp
+      branch: main
+    run_command: npm start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-s
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: DB_USERNAME
+        value: ${DB_USERNAME}
+      - key: DB_PASSWORD
+        value: ${DB_PASSWORD}
+      - key: DB_NAME
+        value: ${DB_NAME}
+      - key: HOST
+        value: ${DB_HOST}
+      - key: JWT_SECRET
+        value: ${JWT_SECRET}
+      - key: PORT
+        value: ${PORT}
+      - key: CORS_ORIGIN
+        value: ${CORS_ORIGIN}
+      - key: ANGULAR_API_URL
+        value: ${ANGULAR_API_URL}
+
+databases:
+  - name: kanban-db
+    engine: PG
+    version: "15"
+    production: false 

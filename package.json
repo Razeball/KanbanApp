@@ -9,6 +9,8 @@
     "install:server": "cd server && npm install",
     "install:client": "cd client/kanban && npm install",
     "install:all": "npm run install:server && npm run install:client",
+    "start:prod": "npm run install:all && npm run build:client && cd server && npm start",
+    "start": "npm run start:prod",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",

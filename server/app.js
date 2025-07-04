@@ -2,12 +2,17 @@ import express from "express";
 import cors from "cors";
 import passport from "passport";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/authRoutes.js";
 import boardRoutes from "./routes/boardRoutes.js";
 import listRoutes from "./routes/listRoutes.js";
 import cardRoutes from "./routes/cardRoutes.js";
 import documentRoutes from "./routes/documentRoutes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -40,5 +45,15 @@ app.get("/health", (req, res) => {
     environment: process.env.NODE_ENV || "development",
   });
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/kanban/dist/kanban")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.join(__dirname, "../client/kanban/dist/kanban/index.html")
+    );
+  });
+}
 
 export default app;
