@@ -24,6 +24,9 @@ if (process.env.DATABASE_URL) {
         require: true,
         rejectUnauthorized: false,
         checkServerIdentity: () => undefined,
+        ca: undefined,
+        key: undefined,
+        cert: undefined,
       },
     },
   });

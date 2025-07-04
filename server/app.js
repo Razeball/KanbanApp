@@ -22,10 +22,27 @@ app.use(express.json());
 const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:4200";
 const allowedOrigins = corsOrigin.split(",").map((origin) => origin.trim());
 
+console.log("CORS Origins:", allowedOrigins);
+
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (
+        allowedOrigins.indexOf(origin) !== -1 ||
+        allowedOrigins.includes("*")
+      ) {
+        callback(null, true);
+      } else {
+        console.log("CORS blocked origin:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 app.use(cookieParser());
@@ -37,6 +54,24 @@ app.use("/board", boardRoutes);
 app.use("/list", listRoutes);
 app.use("/card", cardRoutes);
 app.use("/document", documentRoutes);
+
+// Add debugging for API routes
+app.use((req, res, next) => {
+  if (
+    req.path.startsWith("/auth") ||
+    req.path.startsWith("/board") ||
+    req.path.startsWith("/list") ||
+    req.path.startsWith("/card") ||
+    req.path.startsWith("/document")
+  ) {
+    console.log(
+      `API Request: ${req.method} ${req.path} - Origin: ${
+        req.headers.origin
+      } - User: ${req.user ? req.user.id : "anonymous"}`
+    );
+  }
+  next();
+});
 
 app.get("/health", (req, res) => {
   console.log("Health check requested");
