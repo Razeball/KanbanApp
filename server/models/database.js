@@ -20,14 +20,11 @@ if (process.env.DATABASE_URL) {
     ...config,
     logging: false,
     dialectOptions: {
-      ssl:
-        process.env.NODE_ENV === "production"
-          ? {
-              require: true,
-              rejectUnauthorized: false,
-              checkServerIdentity: () => undefined,
-            }
-          : false,
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+        checkServerIdentity: () => undefined,
+      },
     },
   });
 } else if (config.use_env_variable) {

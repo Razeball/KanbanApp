@@ -54,10 +54,13 @@ app.use((req, res, next) => {
 });
 
 if (process.env.NODE_ENV === "production") {
-  const staticPath = path.join(__dirname, "../client/kanban/dist/kanban");
+  const staticPath = path.join(
+    __dirname,
+    "../client/kanban/dist/kanban/browser"
+  );
   const indexPath = path.join(
     __dirname,
-    "../client/kanban/dist/kanban/index.html"
+    "../client/kanban/dist/kanban/browser/index.html"
   );
 
   // Check if build files exist
