@@ -73,6 +73,10 @@ export class BoardService {
     const serverStorageEnabled = localStorage.getItem('serverStorageEnabled');
     const useServer = isAuthenticated && serverStorageEnabled !== 'false';
     
+    if (!useServer) {
+      const localBoard = this.localStorageService.getBoard(id);
+      return of(localBoard);
+    }
     
     const requestOptions = isAuthenticated ? { withCredentials: true } : {};
     
@@ -80,15 +84,8 @@ export class BoardService {
       .pipe(
         catchError(error => {
           console.error(`Error fetching board ${id} from server:`, error);
-          
-          
-          if (useServer) {
-            const localBoard = this.localStorageService.getBoard(id);
-            return of(localBoard);
-          }
-          
-         
-          return of(null);
+          const localBoard = this.localStorageService.getBoard(id);
+          return of(localBoard);
         })
       );
   }
