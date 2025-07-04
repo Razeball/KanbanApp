@@ -1,20 +1,25 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { BoardService } from '../../services/board/board';
 import { DocumentService } from '../../services/document/document';
+import { SocketService } from '../../services/socket/socket';
+import { Auth } from '../../services/authorization/auth';
 import { List } from '../../models/list';
 import { Board } from '../../models/board';
 import { Document } from '../../models/document';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterModule],
+  imports: [RouterModule, FormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class Dashboard implements OnInit {
   private boardService = inject(BoardService);
   private documentService = inject(DocumentService);
+  private socketService = inject(SocketService);
+  private authService = inject(Auth);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -38,7 +43,14 @@ export class Dashboard implements OnInit {
     action: string;
   }> = [];
 
+  showJoinModal = false;
+  joinShareCode = '';
+  joinError: string | null = null;
+  isJoining = false;
+  currentUser: any = null;
+
   ngOnInit() {
+    this.loadCurrentUser();
     this.loadStats();
     this.loadRecentActivity();
   }
@@ -255,5 +267,49 @@ export class Dashboard implements OnInit {
 
   openBoard(id: string) {
     this.router.navigate(['/board', id]);
+  }
+
+  private loadCurrentUser() {
+    this.authService.getCurrentUser().subscribe(user => {
+      this.currentUser = user;
+    });
+  }
+
+  openJoinModal() {
+    this.showJoinModal = true;
+    this.joinShareCode = '';
+    this.joinError = null;
+  }
+
+  closeJoinModal() {
+    this.showJoinModal = false;
+    this.joinShareCode = '';
+    this.joinError = null;
+  }
+
+  joinBoard() {
+    if (!this.joinShareCode.trim()) {
+      this.joinError = 'Please enter a share code';
+      return;
+    }
+
+    this.isJoining = true;
+    this.joinError = null;
+
+    this.boardService.joinBoard(this.joinShareCode.trim().toUpperCase()).subscribe({
+      next: (response) => {
+        this.closeJoinModal();
+        this.isJoining = false;
+        
+        if (response.board) {
+          this.socketService.joinBoard(response.board.id, this.joinShareCode.trim().toUpperCase(), this.currentUser);
+          this.router.navigate(['/board', response.board.id]);
+        }
+      },
+      error: (error) => {
+        this.joinError = error.error?.message || 'Failed to join board';
+        this.isJoining = false;
+      }
+    });
   }
 }

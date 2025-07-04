@@ -73,25 +73,33 @@ export class BoardService {
     const serverStorageEnabled = localStorage.getItem('serverStorageEnabled');
     const useServer = isAuthenticated && serverStorageEnabled !== 'false';
     
-    if (useServer) {
-      return this.http.get<Board>(`${this.apiUrl}/board/${id}`, { withCredentials: true })
-        .pipe(
-          catchError(error => {
-            console.error(`Error fetching board ${id} from server:`, error);
+    
+    const requestOptions = isAuthenticated ? { withCredentials: true } : {};
+    
+    return this.http.get<Board>(`${this.apiUrl}/board/${id}`, requestOptions)
+      .pipe(
+        catchError(error => {
+          console.error(`Error fetching board ${id} from server:`, error);
+          
+          
+          if (useServer) {
             const localBoard = this.localStorageService.getBoard(id);
             return of(localBoard);
-          })
-        );
-    } else {
-      const board = this.localStorageService.getBoard(id);
-      return of(board);
-    }
+          }
+          
+         
+          return of(null);
+        })
+      );
   }
 
   createBoard(board: Board): Observable<Board> {
     const useServer = this.auth.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
     if (useServer) {
-      return this.http.post<Board>(`${this.apiUrl}/board/create`, board, { withCredentials: true })
+      const hasLists = board.Lists && board.Lists.length > 0;
+      const endpoint = hasLists ? 'create-complete' : 'create';
+      
+      return this.http.post<Board>(`${this.apiUrl}/board/${endpoint}`, board, { withCredentials: true })
         .pipe(
           map(newBoard => {
             this.loadBoards(); 
@@ -106,7 +114,7 @@ export class BoardService {
       const newBoard: Board = {
         id: this.generateId(),
         title: board.title,
-        Lists: []
+        Lists: board.Lists || []
       };
       
       this.localStorageService.addBoard(newBoard);
@@ -228,5 +236,45 @@ export class BoardService {
         this.notificationService.showLoginReminder(this.router);
       }, 1000);
     }
+  }
+
+  toggleCollaboration(boardId: string, endpoint: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/board/${endpoint}/${boardId}`, {}, { withCredentials: true })
+      .pipe(
+        catchError(error => {
+          console.error('Error toggling collaboration:', error);
+          throw error;
+        })
+      );
+  }
+
+  generateNewShareCode(boardId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/board/generate-code/${boardId}`, {}, { withCredentials: true })
+      .pipe(
+        catchError(error => {
+          console.error('Error generating new share code:', error);
+          throw error;
+        })
+      );
+  }
+
+  joinBoard(shareCode: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/board/join`, { shareCode }, { withCredentials: true })
+      .pipe(
+        catchError(error => {
+          console.error('Error joining board:', error);
+          throw error;
+        })
+      );
+  }
+
+  getBoardByShareCode(shareCode: string): Observable<Board | null> {
+    return this.http.get<Board>(`${this.apiUrl}/board/share/${shareCode}`)
+      .pipe(
+        catchError(error => {
+          console.error('Error getting board by share code:', error);
+          return of(null);
+        })
+      );
   }
 }

@@ -53,6 +53,8 @@
         @for (card of listCards; track trackByCardId($index, card)) {
             <app-card 
                 [cardData]="card"
+                [boardId]="boardId"
+                [isCollaborationEnabled]="isCollaborationEnabled"
                 (cardUpdated)="onCardUpdated()">
             </app-card>
         }

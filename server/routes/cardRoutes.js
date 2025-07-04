@@ -1,5 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
+import { optionalAuth } from "../middleware/optionalAuth.js";
 import {
   createCard,
   deleteCard,
@@ -8,27 +9,9 @@ import {
 } from "../controllers/cardController.js";
 const router = Router();
 
-router.post(
-  "/create/:listId",
-  passport.authenticate("jwt", { session: false }),
-  createCard
-);
-router.put(
-  "/update/:cardId",
-  passport.authenticate("jwt", { session: false }),
-  updateCard
-);
-
-router.delete(
-  "/delete/:cardId",
-  passport.authenticate("jwt", { session: false }),
-  deleteCard
-);
-
-router.put(
-  "/move/:cardId",
-  passport.authenticate("jwt", { session: false }),
-  moveCard
-);
+router.post("/create/:listId", optionalAuth, createCard);
+router.put("/update/:cardId", optionalAuth, updateCard);
+router.delete("/delete/:cardId", optionalAuth, deleteCard);
+router.put("/move/:cardId", optionalAuth, moveCard);
 
 export default router;

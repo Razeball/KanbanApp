@@ -1,17 +1,21 @@
 import db from "../models/database.js";
+import {
+  checkBoardAccess,
+  checkBoardAccessByListId,
+} from "../utils/boardAccess.js";
 const { Board, List, Card } = db;
 
 export const createList = async (req, res) => {
   const { boardId } = req.params;
   const { title } = req.body;
   try {
-    const board = await Board.findOne({
-      where: { id: boardId, userId: req.user.id },
-    });
-    if (!board)
-      return res
-        .status(403)
-        .json({ message: "You are unauthorized to get this list" });
+    const accessCheck = await checkBoardAccess(boardId, req.user?.id);
+
+    if (!accessCheck.hasAccess) {
+      const statusCode = accessCheck.error === "Board not found" ? 404 : 403;
+      return res.status(statusCode).json({ message: accessCheck.error });
+    }
+
     const listOrder = await List.findAll({ where: { boardId } });
     const newList = await List.create({
       title,
@@ -31,14 +35,18 @@ export const updateList = async (req, res) => {
   const { listId } = req.params;
   const { title } = req.body;
   try {
+    const accessCheck = await checkBoardAccessByListId(listId, req.user?.id);
+
+    if (!accessCheck.hasAccess) {
+      const statusCode =
+        accessCheck.error === "List or board not found" ? 404 : 403;
+      return res.status(statusCode).json({ message: accessCheck.error });
+    }
+
     const list = await List.findOne({
       where: { id: listId },
-      include: [{ model: Board, where: { userId: req.user.id } }],
     });
-    if (list.Board.userId !== req.user.id)
-      return res
-        .status(403)
-        .json({ message: "You are unauthorized to update this list" });
+
     list.set({
       title,
     });
@@ -55,14 +63,18 @@ export const updateList = async (req, res) => {
 export const deleteList = async (req, res) => {
   const { listId } = req.params;
   try {
+    const accessCheck = await checkBoardAccessByListId(listId, req.user?.id);
+
+    if (!accessCheck.hasAccess) {
+      const statusCode =
+        accessCheck.error === "List or board not found" ? 404 : 403;
+      return res.status(statusCode).json({ message: accessCheck.error });
+    }
+
     const list = await List.findOne({
       where: { id: listId },
-      include: [{ model: Board, where: { userId: req.user.id } }],
     });
-    if (list.Board.userId !== req.user.id)
-      return res
-        .status(403)
-        .json({ message: "You are unauthorized to update this list" });
+
     await list.destroy();
     return res.sendStatus(204);
   } catch (error) {

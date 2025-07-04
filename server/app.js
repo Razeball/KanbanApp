@@ -14,7 +14,10 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:4200",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? ["http://localhost", "https://localhost"]
+        : "http://localhost:4200",
     credentials: true,
   })
 );
@@ -27,5 +30,14 @@ app.use("/board", boardRoutes);
 app.use("/list", listRoutes);
 app.use("/card", cardRoutes);
 app.use("/document", documentRoutes);
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
 
 export default app;

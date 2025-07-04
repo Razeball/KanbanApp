@@ -2,8 +2,20 @@
   <div class="max-w-7xl mx-auto">
 
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-white mb-2">My Boards</h1>
-      <p class="text-gray-400">Organize your projects and tasks</p>
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white mb-2">My Boards</h1>
+          <p class="text-gray-400">Organize your projects and tasks</p>
+        </div>
+        <button 
+          (click)="openJoinModal()"
+          class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+          </svg>
+          Join Board
+        </button>
+      </div>
     </div>
 
     @if (isLoading) {
@@ -29,14 +41,14 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         
         <div class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-lg p-6 hover:border-gray-500 transition-colors cursor-pointer group"
-             (click)="openCreateBoardModal()">
+             (click)="openCreateOrImportModal()">
           <div class="flex flex-col items-center justify-center h-32">
             <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mb-3 group-hover:bg-gray-600 transition-colors">
               <svg class="w-6 h-6 text-gray-400 group-hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
             </div>
-            <h3 class="text-gray-300 font-medium group-hover:text-white transition-colors">Create New Board</h3>
+            <h3 class="text-gray-300 font-medium group-hover:text-white transition-colors">Create or Import Board</h3>
           </div>
         </div>
 
@@ -90,5 +102,94 @@
       (modalClosed)="onTitleModalClosed()"
       (titleSubmitted)="onTitleSubmitted($event)">
     </app-title-input-modal>
+
+    @if (showJoinModal) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+          <h3 class="text-lg font-semibold text-white mb-4">Join Board</h3>
+          
+          @if (joinError) {
+            <div class="bg-red-500 text-white p-3 rounded-md mb-4">
+              {{ joinError }}
+            </div>
+          }
+          
+          <div class="mb-4">
+            <label class="block text-gray-300 text-sm mb-2">Enter Share Code</label>
+            <input 
+              type="text" 
+              [(ngModel)]="joinShareCode"
+              placeholder="Enter 8-character code"
+              class="w-full bg-gray-700 text-white px-3 py-2 rounded-md text-center font-mono text-lg tracking-widest uppercase"
+              maxlength="8"
+              [disabled]="isJoining">
+          </div>
+          
+          <div class="text-gray-400 text-sm mb-4">
+            <p>Enter the 8-character share code provided by the board owner.</p>
+          </div>
+          
+          <div class="flex justify-end space-x-2">
+            <button 
+              (click)="closeJoinModal()"
+              class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+              Cancel
+            </button>
+            <button 
+              [disabled]="isJoining || !joinShareCode.trim()"
+              (click)="joinBoard()"
+              class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50">
+              @if (isJoining) {
+                <span>Joining...</span>
+              } @else {
+                <span>Join Board</span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (showCreateOrImportModal) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+          <h3 class="text-lg font-semibold text-white mb-4">Create or Import Board</h3>
+          
+          <div class="space-y-3">
+            <button 
+              (click)="selectCreateBoard()"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg transition-colors flex items-center">
+              <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              <div class="text-left">
+                <div class="font-medium">Create New Board</div>
+                <div class="text-sm text-blue-100">Start with a blank board</div>
+              </div>
+            </button>
+            
+            <button 
+              (click)="selectImportBoard()"
+              class="w-full bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg transition-colors flex items-center">
+              <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+              </svg>
+              <div class="text-left">
+                <div class="font-medium">Import Board</div>
+                <div class="text-sm text-green-100">Import from Markdown file</div>
+              </div>
+            </button>
+          </div>
+          
+          <div class="flex justify-end mt-6">
+            <button 
+              (click)="closeCreateOrImportModal()"
+              class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 </div> 

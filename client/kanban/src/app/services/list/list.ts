@@ -27,90 +27,94 @@ export class ListService {
   }
 
   createList(boardId: string, title: string): Observable<List> {
-    const useServer = this.auth.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
-    if (useServer) {
-      return this.http.post<List>(`${this.apiUrl}/list/create/${boardId}`, 
-        { title }, 
-        { withCredentials: true }
-      ).pipe(
-        catchError(error => {
-          console.error('Error creating list on server:', error);
-          throw error;
-        })
-      );
-    } else {
-      const newList = this.localStorageService.createListInBoard(boardId, title);
-      return of(newList);
-    }
+    const isAuthenticated = this.auth.getCurrentAuthState();
+    const useServer = isAuthenticated && localStorage.getItem('serverStorageEnabled') !== 'false';
+    const requestOptions = isAuthenticated ? { withCredentials: true } : {};
+    
+    return this.http.post<List>(`${this.apiUrl}/list/create/${boardId}`, 
+      { title }, 
+      requestOptions
+    ).pipe(
+      catchError(error => {
+        console.error('Error creating list on server:', error);
+        if (useServer) {
+          const newList = this.localStorageService.createListInBoard(boardId, title);
+          return of(newList);
+        }
+        throw error;
+      })
+    );
   }
 
   updateList(listId: string, title: string): Observable<List | null> {
-    const useServer = this.auth.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
-    if (useServer) {
-      return this.http.put<List>(`${this.apiUrl}/list/update/${listId}`, 
-        { title }, 
-        { withCredentials: true }
-      ).pipe(
-        catchError(error => {
-          console.error('Error updating list on server:', error);
-          return of(null);
-        })
-      );
-    } else {
-      const boards = this.localStorageService.getBoards();
-      let updatedList = null;
-      
-      for (let board of boards) {
-        if (board.Lists) {
-          const listIndex = board.Lists.findIndex(list => list.id === listId);
-          if (listIndex !== -1) {
-            board.Lists[listIndex].title = title;
-            updatedList = board.Lists[listIndex];
-            break;
+    const isAuthenticated = this.auth.getCurrentAuthState();
+    const useServer = isAuthenticated && localStorage.getItem('serverStorageEnabled') !== 'false';
+    const requestOptions = isAuthenticated ? { withCredentials: true } : {};
+    
+    return this.http.put<List>(`${this.apiUrl}/list/update/${listId}`, 
+      { title }, 
+      requestOptions
+    ).pipe(
+      catchError(error => {
+        console.error('Error updating list on server:', error);
+        if (useServer) {
+          const boards = this.localStorageService.getBoards();
+          let updatedList = null;
+          
+          for (let board of boards) {
+            if (board.Lists) {
+              const listIndex = board.Lists.findIndex(list => list.id === listId);
+              if (listIndex !== -1) {
+                board.Lists[listIndex].title = title;
+                updatedList = board.Lists[listIndex];
+                break;
+              }
+            }
           }
+          
+          if (updatedList) {
+            this.localStorageService.saveBoards(boards);
+          }
+          
+          return of(updatedList);
         }
-      }
-      
-      if (updatedList) {
-        this.localStorageService.saveBoards(boards);
-      }
-      
-      return of(updatedList);
-    }
+        return of(null);
+      })
+    );
   }
- //A lot of check so it not get duplicated
+
   deleteList(listId: string): Observable<boolean> {
-    const useServer = this.auth.getCurrentAuthState() && localStorage.getItem('serverStorageEnabled') !== 'false';
-    if (useServer) {
-      return this.http.delete<void>(`${this.apiUrl}/list/delete/${listId}`, { 
-        withCredentials: true 
-      }).pipe(
-        map(() => true),
-        catchError(error => {
-          console.error('Error deleting list on server:', error);
-          return of(false);
-        })
-      );
-    } else {
-      const boards = this.localStorageService.getBoards();
-      let deleted = false;
-      
-      for (let board of boards) {
-        if (board.Lists) {
-          const listIndex = board.Lists.findIndex(list => list.id === listId);
-          if (listIndex !== -1) {
-            board.Lists.splice(listIndex, 1);
-            deleted = true;
-            break;
+    const isAuthenticated = this.auth.getCurrentAuthState();
+    const useServer = isAuthenticated && localStorage.getItem('serverStorageEnabled') !== 'false';
+    const requestOptions = isAuthenticated ? { withCredentials: true } : {};
+    
+    return this.http.delete<void>(`${this.apiUrl}/list/delete/${listId}`, requestOptions).pipe(
+      map(() => true),
+      catchError(error => {
+        console.error('Error deleting list on server:', error);
+        if (useServer) {
+          const boards = this.localStorageService.getBoards();
+          let deleted = false;
+          
+          for (let board of boards) {
+            if (board.Lists) {
+              const listIndex = board.Lists.findIndex(list => list.id === listId);
+              if (listIndex !== -1) {
+                board.Lists.splice(listIndex, 1);
+                deleted = true;
+                break;
+              }
+            }
           }
+          
+          if (deleted) {
+            this.localStorageService.saveBoards(boards);
+          }
+          
+          return of(deleted);
         }
-      }
-      
-      if (deleted) {
-        this.localStorageService.saveBoards(boards);
-      }
-      
-      return of(deleted);
-    }
+        return of(false);
+      })
+    );
   }
 }

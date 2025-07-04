@@ -27,6 +27,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private localStorageService = inject(LocalStorageService);
 
   user: User | null = null;
+  isLoadingUser = true;
   serverStorageEnabled = true;
   isSyncing = false;
   
@@ -38,10 +39,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
   loginRemindersEnabled = true;
 
   ngOnInit() {
-    this.loadUserProfile();
     this.loadStoragePreference();
     this.loadDataCounts();
     this.loadNotificationPreferences();
+    
+    this.auth.authState$.subscribe(isAuthenticated => {
+      if (isAuthenticated) {
+        this.loadUserProfile();
+      } else {
+        this.user = null;
+        this.isLoadingUser = false;
+      }
+    });
+    
+    this.loadUserProfile();
   }
 
   private checkAuthAndLoadProfile() {
@@ -49,25 +60,25 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private loadUserProfile() {
+    this.isLoadingUser = true;
+    
     if (!this.auth.getCurrentAuthState()) {
       this.user = null;
+      this.isLoadingUser = false;
       return;
     }
     
-    const currentUser = this.auth.getCurrentUser();
-    if (currentUser) {
-      currentUser.subscribe({
-        next: (user: any) => {
-          this.user = user ? { ...user } : null;
-        },
-        error: (error: any) => {
-          console.error('Error loading user profile:', error);
-          this.user = null;
-        }
-      });
-    } else {
-      this.user = null;
-    }
+    this.auth.getCurrentUser().subscribe({
+      next: (user: any) => {
+        this.user = user ? { ...user } : null;
+        this.isLoadingUser = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading user profile:', error);
+        this.user = null;
+        this.isLoadingUser = false;
+      }
+    });
   }
 
   private loadDataCounts() {

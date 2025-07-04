@@ -1,5 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
+import { optionalAuth } from "../middleware/optionalAuth.js";
 import {
   createBoard,
   createCompleteBoard,
@@ -8,6 +9,11 @@ import {
   getBoardById,
   getBoards,
   updateBoard,
+  enableCollaboration,
+  disableCollaboration,
+  generateNewShareCode,
+  getBoardByShareCode,
+  joinBoard,
 } from "../controllers/boardController.js";
 
 const router = Router();
@@ -31,11 +37,7 @@ router.put(
 );
 
 router.get("/all", passport.authenticate("jwt", { session: false }), getBoards);
-router.get(
-  "/:id",
-  passport.authenticate("jwt", { session: false }),
-  getBoardById
-);
+router.get("/:id", optionalAuth, getBoardById);
 
 router.put(
   "/update/:id",
@@ -48,4 +50,27 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   deleteBoard
 );
+
+router.post(
+  "/enable-collaboration/:id",
+  passport.authenticate("jwt", { session: false }),
+  enableCollaboration
+);
+
+router.post(
+  "/disable-collaboration/:id",
+  passport.authenticate("jwt", { session: false }),
+  disableCollaboration
+);
+
+router.post(
+  "/generate-code/:id",
+  passport.authenticate("jwt", { session: false }),
+  generateNewShareCode
+);
+
+router.get("/share/:shareCode", getBoardByShareCode);
+
+router.post("/join", optionalAuth, joinBoard);
+
 export default router;

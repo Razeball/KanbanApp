@@ -1,16 +1,22 @@
 import db from "../models/database.js";
+import {
+  checkBoardAccessByListId,
+  checkBoardAccessByCardId,
+} from "../utils/boardAccess.js";
 const { Board, List, Card, sequelize } = db;
 
 export const createCard = async (req, res) => {
   const { listId } = req.params;
   const { title, description } = req.body;
-  const userId = req.user.id;
+  const userId = req.user?.id;
   try {
-    const list = await List.findByPk(listId, {
-      include: [
-        { model: Board, required: true, attributes: [], where: { userId } },
-      ],
-    });
+    const accessCheck = await checkBoardAccessByListId(listId, userId);
+
+    if (!accessCheck.hasAccess) {
+      const statusCode =
+        accessCheck.error === "List or board not found" ? 404 : 403;
+      return res.status(statusCode).json({ message: accessCheck.error });
+    }
 
     const cardOrder = await Card.findAll({ where: { listId } });
     const card = await Card.create({
@@ -31,18 +37,15 @@ export const updateCard = async (req, res) => {
   const { cardId } = req.params;
   const { title, description } = req.body;
   try {
-    const card = await Card.findByPk(cardId, {
-      include: [
-        {
-          model: List,
-          required: true,
-          attributes: [],
-          include: [
-            { model: Board, required: true, where: { userId: req.user.id } },
-          ],
-        },
-      ],
-    });
+    const accessCheck = await checkBoardAccessByCardId(cardId, req.user?.id);
+
+    if (!accessCheck.hasAccess) {
+      const statusCode =
+        accessCheck.error === "Card, list, or board not found" ? 404 : 403;
+      return res.status(statusCode).json({ message: accessCheck.error });
+    }
+
+    const card = await Card.findByPk(cardId);
     card.set({
       title,
       description,
@@ -60,18 +63,15 @@ export const updateCard = async (req, res) => {
 export const deleteCard = async (req, res) => {
   const { cardId } = req.params;
   try {
-    const card = await Card.findByPk(cardId, {
-      include: [
-        {
-          model: List,
-          required: true,
-          attributes: [],
-          include: [
-            { model: Board, required: true, where: { userId: req.user.id } },
-          ],
-        },
-      ],
-    });
+    const accessCheck = await checkBoardAccessByCardId(cardId, req.user?.id);
+
+    if (!accessCheck.hasAccess) {
+      const statusCode =
+        accessCheck.error === "Card, list, or board not found" ? 404 : 403;
+      return res.status(statusCode).json({ message: accessCheck.error });
+    }
+
+    const card = await Card.findByPk(cardId);
     await card.destroy();
     return res.sendStatus(204);
   } catch (error) {
@@ -86,6 +86,27 @@ export const moveCard = async (req, res) => {
   const { cardId } = req.params;
   const { newListId, newOrder } = req.body;
   try {
+    const cardAccessCheck = await checkBoardAccessByCardId(
+      cardId,
+      req.user?.id
+    );
+    const listAccessCheck = await checkBoardAccessByListId(
+      newListId,
+      req.user?.id
+    );
+
+    if (!cardAccessCheck.hasAccess) {
+      const statusCode =
+        cardAccessCheck.error === "Card, list, or board not found" ? 404 : 403;
+      return res.status(statusCode).json({ message: cardAccessCheck.error });
+    }
+
+    if (!listAccessCheck.hasAccess) {
+      const statusCode =
+        listAccessCheck.error === "List or board not found" ? 404 : 403;
+      return res.status(statusCode).json({ message: listAccessCheck.error });
+    }
+
     await sequelize.transaction(async (t) => {
       const oldCard = await Card.findByPk(cardId, {
         transaction: t,
@@ -94,9 +115,6 @@ export const moveCard = async (req, res) => {
             model: List,
             required: true,
             attributes: ["id"],
-            include: [
-              { model: Board, required: true, where: { userId: req.user.id } },
-            ],
           },
         ],
       });
@@ -104,16 +122,9 @@ export const moveCard = async (req, res) => {
       const newList = await List.findOne({
         transaction: t,
         where: { id: newListId },
-        include: [
-          {
-            model: Board,
-            required: true,
-            where: { userId: req.user.id },
-            attributes: [],
-          },
-          { model: Card, required: false },
-        ],
+        include: [{ model: Card, required: false }],
       });
+
       const oldList = await List.findOne({
         transaction: t,
         where: { id: oldCard.List.id },

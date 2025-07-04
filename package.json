@@ -1,0 +1,48 @@
+{
+  "name": "kanban-app",
+  "version": "1.0.0",
+  "description": "A full-stack collaborative KanBan board application",
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client/kanban && npm start",
+    "build:client": "cd client/kanban && npm run build:prod",
+    "install:server": "cd server && npm install",
+    "install:client": "cd client/kanban && npm install",
+    "install:all": "npm run install:server && npm run install:client",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d --build",
+    "setup:dev": "bash scripts/dev-setup.sh",
+    "deploy": "bash scripts/deploy.sh",
+    "backup": "bash scripts/backup.sh",
+    "restore": "bash scripts/restore.sh",
+    "migrate": "cd server && npm run migrate",
+    "migrate:undo": "cd server && npm run migrate:undo",
+    "seed": "cd server && npm run seed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/kanban-app.git"
+  },
+  "keywords": [
+    "kanban",
+    "board",
+    "angular",
+    "nodejs",
+    "postgresql",
+    "real-time",
+    "collaboration"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/kanban-app/issues"
+  },
+  "homepage": "https://github.com/yourusername/kanban-app#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+} 

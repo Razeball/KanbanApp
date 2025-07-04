@@ -12,6 +12,19 @@ export default class Board extends Model {
         },
         title: DataTypes.STRING,
         userId: DataTypes.STRING,
+        isCollaborationEnabled: {
+          type: DataTypes.BOOLEAN,
+          defaultValue: false,
+        },
+        shareCode: {
+          type: DataTypes.STRING,
+          unique: true,
+          allowNull: true,
+        },
+        collaborators: {
+          type: DataTypes.JSON,
+          defaultValue: [],
+        },
       },
       {
         sequelize,

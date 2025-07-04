@@ -6,6 +6,7 @@ import { List as ListModel } from '../../models/list';
 import { Card as CardModel } from '../../models/card';
 import { CardService } from '../../services/card/card';
 import { ListService } from '../../services/list/list';
+import { SocketService } from '../../services/socket/socket';
 
 @Component({
   selector: 'app-list',
@@ -16,10 +17,13 @@ import { ListService } from '../../services/list/list';
 export class List implements OnInit, OnChanges, OnDestroy {
   @Input() listData: ListModel | null = null;
   @Input() listTitle: string = 'List';
+  @Input() boardId: string | null = null;
+  @Input() isCollaborationEnabled: boolean = false;
   @Output() listUpdated = new EventEmitter<void>();
 
   private cardService = inject(CardService);
   private listService = inject(ListService);
+  private socketService = inject(SocketService);
   private cdr = inject(ChangeDetectorRef);
   
   listCards: CardModel[] = [];
@@ -125,6 +129,9 @@ export class List implements OnInit, OnChanges, OnDestroy {
       this.cardService.moveCard(cardId, this.listId, newOrder).subscribe({
         next: (success) => {
           if (success) {
+            if (this.boardId && this.listId) {
+              this.socketService.emitCardMoved(this.boardId, cardId, sourceListId, this.listId, newOrder);
+            }
             this.listUpdated.emit();
           } else {
             alert('Failed to move card. Please try again.');
@@ -196,6 +203,9 @@ export class List implements OnInit, OnChanges, OnDestroy {
       next: (updatedList) => {
         if (this.listData && updatedList) {
           this.listData.title = updatedList.title;
+          if (this.boardId) {
+            this.socketService.emitListUpdated(this.boardId, this.listData);
+          }
         }
         this.listUpdated.emit();
         this.onTitleModalClosed();
@@ -215,6 +225,9 @@ export class List implements OnInit, OnChanges, OnDestroy {
     this.cardService.createCard(this.listId, title).subscribe({
       next: (card) => {
         this.listCards.push(card);
+        if (this.boardId) {
+          this.socketService.emitCardCreated(this.boardId, card);
+        }
         this.listUpdated.emit();
         this.onTitleModalClosed();
       },
@@ -246,9 +259,13 @@ export class List implements OnInit, OnChanges, OnDestroy {
   private handleDeleteList() {
     if (!this.listData?.id) return;
 
+    const listId = this.listData.id;
     this.confirmModalLoading = true;
-    this.listService.deleteList(this.listData.id).subscribe({
+    this.listService.deleteList(listId).subscribe({
       next: () => {
+        if (this.boardId) {
+          this.socketService.emitListDeleted(this.boardId, listId);
+        }
         this.listUpdated.emit();
         this.onConfirmModalClosed();
       },

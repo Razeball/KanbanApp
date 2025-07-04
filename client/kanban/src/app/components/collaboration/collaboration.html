@@ -1,0 +1,118 @@
+<div class="collaboration-container">
+  <div class="collaboration-header">
+    <h3 class="text-lg font-semibold text-white mb-4">Collaboration</h3>
+    
+    @if (error) {
+      <div class="bg-red-500 text-white p-3 rounded-md mb-4">
+        {{ error }}
+      </div>
+    }
+    
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-2">
+        <label class="text-gray-300">Enable Collaboration</label>
+        <button 
+          [disabled]="isLoading"
+          (click)="toggleCollaboration()"
+          class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          [class.bg-indigo-600]="isCollaborationEnabled"
+          [class.bg-gray-600]="!isCollaborationEnabled">
+          <span class="sr-only">Enable collaboration</span>
+          <span 
+            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+            [class.translate-x-6]="isCollaborationEnabled"
+            [class.translate-x-1]="!isCollaborationEnabled">
+          </span>
+        </button>
+        @if (!currentUser || !currentUser.username) {
+          <span class="text-xs text-gray-500">(Login required)</span>
+        }
+      </div>
+      
+      @if (isCollaborationEnabled) {
+        <div class="flex items-center space-x-2">
+          <button 
+            (click)="openShareModal()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors">
+            Share Board
+          </button>
+        </div>
+      }
+    </div>
+    
+    @if (isCollaborationEnabled) {
+      <div class="collaborators-section">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-md font-medium text-gray-200">
+            Collaborators ({{ collaboratorCount }}/{{ maxCollaborators }})
+          </h4>
+          @if (!canAddCollaborators) {
+            <span class="text-red-400 text-sm">Board is full</span>
+          }
+        </div>
+        
+        <div class="flex flex-wrap gap-2">
+          @for (collaborator of collaborators; track collaborator.id) {
+            <div class="flex items-center space-x-2 bg-gray-700 rounded-full px-3 py-1">
+              <div class="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-medium">
+                {{ getCollaboratorInitials(collaborator) }}
+              </div>
+              <span class="text-gray-200 text-sm">{{ getCollaboratorDisplayName(collaborator) }}</span>
+              @if (!collaborator.isAuthenticated) {
+                <span class="text-gray-400 text-xs">(Guest)</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+  
+  @if (showShareModal) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold text-white mb-4">Share Board</h3>
+        
+        <div class="mb-4">
+          <label class="block text-gray-300 text-sm mb-2">Share Code</label>
+          <div class="flex items-center space-x-2">
+            <input 
+              type="text" 
+              [value]="shareCode"
+              readonly
+              class="flex-1 bg-gray-700 text-white px-3 py-2 rounded-md text-center font-mono text-lg tracking-widest">
+            <button 
+              (click)="copyShareCode()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+              Copy
+            </button>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <button 
+            [disabled]="isLoading"
+            (click)="generateNewShareCode()"
+            class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors w-full">
+            Generate New Code
+          </button>
+        </div>
+        
+        <div class="text-gray-400 text-sm mb-4">
+          <p>Share this code with others to allow them to collaborate on this board.</p>
+          <p class="mt-2">Maximum 3 collaborators allowed.</p>
+        </div>
+        
+        <div class="flex justify-end">
+          <button 
+            (click)="closeShareModal()"
+            class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+  
+
+</div> 

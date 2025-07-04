@@ -5,4 +5,7 @@ export interface Board {
     title: string;
     userId?: string;
     Lists?: List[];
+    isCollaborationEnabled?: boolean;
+    shareCode?: string;
+    collaborators?: any[];
 }

@@ -4,6 +4,7 @@ import { CardService } from '../../services/card/card';
 import { LocalStorageService } from '../../services/local-storage/local-storage';
 import { MarkdownService } from '../../services/markdown/markdown';
 import { CardModal } from '../card-modal/card-modal';
+import { SocketService } from '../../services/socket/socket';
 
 @Component({
   selector: 'app-card',
@@ -14,11 +15,14 @@ import { CardModal } from '../card-modal/card-modal';
 export class Card implements OnInit, OnDestroy {
   @Input() cardData: CardModel | null = null;
   @Input() cardTitle: string = 'Card'; 
+  @Input() boardId: string | null = null;
+  @Input() isCollaborationEnabled: boolean = false;
   @Output() cardUpdated = new EventEmitter<void>();
 
   private cardService = inject(CardService);
   private localStorageService = inject(LocalStorageService);
   private markdownService = inject(MarkdownService);
+  private socketService = inject(SocketService);
   private cdr = inject(ChangeDetectorRef);
 
   isModalOpen = false;
@@ -145,6 +149,9 @@ export class Card implements OnInit, OnDestroy {
     if (this.cardData) {
       this.cardData.title = updatedCard.title;
       this.cardData.description = updatedCard.description;
+      if (this.boardId) {
+        this.socketService.emitCardUpdated(this.boardId, this.cardData);
+      }
     }
     this.cardUpdated.emit();
   }
@@ -169,11 +176,15 @@ export class Card implements OnInit, OnDestroy {
       return;
     }
 
-    this.cardService.deleteCard(this.cardData.id).subscribe({
+    const cardId = this.cardData.id;
+    this.cardService.deleteCard(cardId).subscribe({
       next: (success) => {
         if (success) {
-        if (this.cardData?.id) {
-          this.localStorageService.removeCardCompletionState(this.cardData.id);
+        if (cardId) {
+          this.localStorageService.removeCardCompletionState(cardId);
+          if (this.boardId) {
+            this.socketService.emitCardDeleted(this.boardId, cardId);
+          }
         }
         this.cardUpdated.emit();
         } else {

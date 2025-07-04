@@ -18,21 +18,27 @@ router.get(
 );
 router.get("/logout", logout);
 
-router.get(
-  "/me",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
+router.get("/me", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (!user) {
+      return res.json(null);
+    }
+
     try {
       res.json({
-        id: req.user.id,
-        username: req.user.username,
-        email: req.user.email,
+        id: user.id,
+        username: user.username,
+        email: user.email,
       });
     } catch (error) {
       console.error("Error fetching user profile:", error);
       res.status(500).json({ message: "Internal server error" });
     }
-  }
-);
+  })(req, res, next);
+});
 
 export default router;

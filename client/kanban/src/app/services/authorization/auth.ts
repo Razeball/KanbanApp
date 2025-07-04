@@ -22,14 +22,15 @@ export class Auth {
   }
 
   private checkAuthStatus() {
-    this.getProfile().subscribe({
-      next: (response) => {
-        this.authStateSubject.next(response.authenticated);
-      },
-      error: () => {
-        this.authStateSubject.next(false);
-      }
-    });
+    this.http.get<{authenticated: boolean}>(`${this.apiUrl}/auth/profile`, { withCredentials: true })
+      .subscribe({
+        next: (response) => {
+          this.authStateSubject.next(response.authenticated);
+        },
+        error: () => {
+          this.authStateSubject.next(false);
+        }
+      });
   }
 
   register(user: User) {

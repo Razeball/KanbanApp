@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-kanban_prod}
+      POSTGRES_USER: ${DB_USERNAME:-kanban_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kanban_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kanban-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-kanban_user} -d ${DB_NAME:-kanban_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  server:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DB_USERNAME: ${DB_USERNAME:-kanban_user}
+      DB_PASSWORD: ${DB_PASSWORD:-kanban_password}
+      DB_NAME: ${DB_NAME:-kanban_prod}
+      HOST: database
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this}
+      PORT: 3000
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - kanban-network
+    command: sh -c "npm run migrate && npm start"
+    restart: unless-stopped
+
+  client:
+    build: 
+      context: ./client/kanban
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - server
+    networks:
+      - kanban-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  kanban-network:
+    driver: bridge 
