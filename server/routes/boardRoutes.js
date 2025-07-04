@@ -39,6 +39,8 @@ router.put(
 router.get("/all", passport.authenticate("jwt", { session: false }), getBoards);
 router.get("/share/:shareCode", getBoardByShareCode);
 
+router.post("/join", optionalAuth, joinBoard);
+
 router.put(
   "/update/:id",
   passport.authenticate("jwt", { session: false }),
@@ -68,8 +70,6 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   generateNewShareCode
 );
-
-router.post("/join", optionalAuth, joinBoard);
 
 router.get("/:id", optionalAuth, getBoardById);
 

@@ -19,16 +19,43 @@ if (process.env.DATABASE_URL) {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     ...config,
     logging: false,
+    dialectOptions: {
+      ssl:
+        process.env.NODE_ENV === "production"
+          ? {
+              require: true,
+              rejectUnauthorized: false,
+            }
+          : false,
+    },
   });
 } else if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], {
     ...config,
     logging: false,
+    dialectOptions: {
+      ssl:
+        process.env.NODE_ENV === "production"
+          ? {
+              require: true,
+              rejectUnauthorized: false,
+            }
+          : false,
+    },
   });
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, {
     ...config,
     logging: false,
+    dialectOptions: {
+      ssl:
+        process.env.NODE_ENV === "production"
+          ? {
+              require: true,
+              rejectUnauthorized: false,
+            }
+          : false,
+    },
   });
 }
 
@@ -46,5 +73,15 @@ Object.keys(db).forEach((modelName) => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+// Test database connection
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Database connection has been established successfully.");
+  })
+  .catch((err) => {
+    console.error("Unable to connect to the database:", err);
+  });
 
 export default db;
