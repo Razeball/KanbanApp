@@ -37,7 +37,7 @@ router.put(
 );
 
 router.get("/all", passport.authenticate("jwt", { session: false }), getBoards);
-router.get("/:id", optionalAuth, getBoardById);
+router.get("/share/:shareCode", getBoardByShareCode);
 
 router.put(
   "/update/:id",
@@ -69,8 +69,8 @@ router.post(
   generateNewShareCode
 );
 
-router.get("/share/:shareCode", getBoardByShareCode);
-
 router.post("/join", optionalAuth, joinBoard);
+
+router.get("/:id", optionalAuth, getBoardById);
 
 export default router;
