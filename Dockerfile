@@ -21,9 +21,9 @@ RUN npm install
 WORKDIR /app/server
 RUN npm install --production
 
-# Install client dependencies
+# Install client dependencies with legacy peer deps to handle conflicts
 WORKDIR /app/client/kanban
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy all source code
 WORKDIR /app
