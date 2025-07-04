@@ -9,6 +9,7 @@ services:
     environment_slug: node-js
     instance_count: 1
     instance_size_slug: basic-s
+    build_command: npm run install:all && npm run build:client
     envs:
       - key: NODE_ENV
         value: production
