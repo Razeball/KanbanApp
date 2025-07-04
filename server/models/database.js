@@ -16,6 +16,14 @@ const db = {};
 
 let sequelize;
 
+console.log("Database config:", {
+  host: config.host,
+  username: config.username,
+  database: config.database,
+  port: config.port,
+  hasPassword: !!config.password,
+});
+
 if (config.host && config.username && config.password && config.database) {
   console.log("Using individual database parameters");
   sequelize = new Sequelize(config.database, config.username, config.password, {
