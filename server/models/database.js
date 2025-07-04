@@ -15,7 +15,15 @@ const config = configFile[env];
 const db = {};
 
 let sequelize;
-if (process.env.DATABASE_URL) {
+
+if (config.host && config.username && config.password && config.database) {
+  console.log("Using individual database parameters");
+  sequelize = new Sequelize(config.database, config.username, config.password, {
+    ...config,
+    logging: false,
+  });
+} else if (process.env.DATABASE_URL) {
+  console.log("Using DATABASE_URL");
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     ...config,
     logging: false,
@@ -31,6 +39,7 @@ if (process.env.DATABASE_URL) {
     },
   });
 } else if (config.use_env_variable) {
+  console.log("Using environment variable");
   sequelize = new Sequelize(process.env[config.use_env_variable], {
     ...config,
     logging: false,
@@ -46,6 +55,7 @@ if (process.env.DATABASE_URL) {
     },
   });
 } else {
+  console.log("Using fallback configuration");
   sequelize = new Sequelize(config.database, config.username, config.password, {
     ...config,
     logging: false,
