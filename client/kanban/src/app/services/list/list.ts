@@ -29,6 +29,12 @@ export class ListService {
   createList(boardId: string, title: string): Observable<List> {
     const isAuthenticated = this.auth.getCurrentAuthState();
     const useServer = isAuthenticated && localStorage.getItem('serverStorageEnabled') !== 'false';
+    
+    if (!useServer) {
+      const newList = this.localStorageService.createListInBoard(boardId, title);
+      return of(newList);
+    }
+    
     const requestOptions = isAuthenticated ? { withCredentials: true } : {};
     
     return this.http.post<List>(`${this.apiUrl}/list/create/${boardId}`, 
@@ -37,11 +43,8 @@ export class ListService {
     ).pipe(
       catchError(error => {
         console.error('Error creating list on server:', error);
-        if (useServer) {
-          const newList = this.localStorageService.createListInBoard(boardId, title);
-          return of(newList);
-        }
-        throw error;
+        const newList = this.localStorageService.createListInBoard(boardId, title);
+        return of(newList);
       })
     );
   }
@@ -49,6 +52,29 @@ export class ListService {
   updateList(listId: string, title: string): Observable<List | null> {
     const isAuthenticated = this.auth.getCurrentAuthState();
     const useServer = isAuthenticated && localStorage.getItem('serverStorageEnabled') !== 'false';
+    
+    if (!useServer) {
+      const boards = this.localStorageService.getBoards();
+      let updatedList = null;
+      
+      for (let board of boards) {
+        if (board.Lists) {
+          const listIndex = board.Lists.findIndex(list => list.id === listId);
+          if (listIndex !== -1) {
+            board.Lists[listIndex].title = title;
+            updatedList = board.Lists[listIndex];
+            break;
+          }
+        }
+      }
+      
+      if (updatedList) {
+        this.localStorageService.saveBoards(boards);
+      }
+      
+      return of(updatedList);
+    }
+    
     const requestOptions = isAuthenticated ? { withCredentials: true } : {};
     
     return this.http.put<List>(`${this.apiUrl}/list/update/${listId}`, 
@@ -57,28 +83,25 @@ export class ListService {
     ).pipe(
       catchError(error => {
         console.error('Error updating list on server:', error);
-        if (useServer) {
-          const boards = this.localStorageService.getBoards();
-          let updatedList = null;
-          
-          for (let board of boards) {
-            if (board.Lists) {
-              const listIndex = board.Lists.findIndex(list => list.id === listId);
-              if (listIndex !== -1) {
-                board.Lists[listIndex].title = title;
-                updatedList = board.Lists[listIndex];
-                break;
-              }
+        const boards = this.localStorageService.getBoards();
+        let updatedList = null;
+        
+        for (let board of boards) {
+          if (board.Lists) {
+            const listIndex = board.Lists.findIndex(list => list.id === listId);
+            if (listIndex !== -1) {
+              board.Lists[listIndex].title = title;
+              updatedList = board.Lists[listIndex];
+              break;
             }
           }
-          
-          if (updatedList) {
-            this.localStorageService.saveBoards(boards);
-          }
-          
-          return of(updatedList);
         }
-        return of(null);
+        
+        if (updatedList) {
+          this.localStorageService.saveBoards(boards);
+        }
+        
+        return of(updatedList);
       })
     );
   }
@@ -86,34 +109,54 @@ export class ListService {
   deleteList(listId: string): Observable<boolean> {
     const isAuthenticated = this.auth.getCurrentAuthState();
     const useServer = isAuthenticated && localStorage.getItem('serverStorageEnabled') !== 'false';
+    
+    if (!useServer) {
+      const boards = this.localStorageService.getBoards();
+      let deleted = false;
+      
+      for (let board of boards) {
+        if (board.Lists) {
+          const listIndex = board.Lists.findIndex(list => list.id === listId);
+          if (listIndex !== -1) {
+            board.Lists.splice(listIndex, 1);
+            deleted = true;
+            break;
+          }
+        }
+      }
+      
+      if (deleted) {
+        this.localStorageService.saveBoards(boards);
+      }
+      
+      return of(deleted);
+    }
+    
     const requestOptions = isAuthenticated ? { withCredentials: true } : {};
     
     return this.http.delete<void>(`${this.apiUrl}/list/delete/${listId}`, requestOptions).pipe(
       map(() => true),
       catchError(error => {
         console.error('Error deleting list on server:', error);
-        if (useServer) {
-          const boards = this.localStorageService.getBoards();
-          let deleted = false;
-          
-          for (let board of boards) {
-            if (board.Lists) {
-              const listIndex = board.Lists.findIndex(list => list.id === listId);
-              if (listIndex !== -1) {
-                board.Lists.splice(listIndex, 1);
-                deleted = true;
-                break;
-              }
+        const boards = this.localStorageService.getBoards();
+        let deleted = false;
+        
+        for (let board of boards) {
+          if (board.Lists) {
+            const listIndex = board.Lists.findIndex(list => list.id === listId);
+            if (listIndex !== -1) {
+              board.Lists.splice(listIndex, 1);
+              deleted = true;
+              break;
             }
           }
-          
-          if (deleted) {
-            this.localStorageService.saveBoards(boards);
-          }
-          
-          return of(deleted);
         }
-        return of(false);
+        
+        if (deleted) {
+          this.localStorageService.saveBoards(boards);
+        }
+        
+        return of(deleted);
       })
     );
   }
