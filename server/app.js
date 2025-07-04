@@ -12,12 +12,13 @@ import documentRoutes from "./routes/documentRoutes.js";
 const app = express();
 
 app.use(express.json());
+
+const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:4200";
+const allowedOrigins = corsOrigin.split(",").map((origin) => origin.trim());
+
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? ["http://localhost", "https://localhost"]
-        : "http://localhost:4200",
+    origin: allowedOrigins,
     credentials: true,
   })
 );

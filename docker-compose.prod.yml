@@ -23,13 +23,14 @@ services:
       context: ./server
       dockerfile: Dockerfile
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-production}
       DB_USERNAME: ${DB_USERNAME:-kanban_user}
       DB_PASSWORD: ${DB_PASSWORD:-kanban_password}
       DB_NAME: ${DB_NAME:-kanban_prod}
-      HOST: database
+      HOST: ${DB_HOST:-database}
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this}
-      PORT: 3000
+      PORT: ${PORT:-3000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://your-domain.com}
     depends_on:
       database:
         condition: service_healthy
@@ -42,9 +43,11 @@ services:
     build: 
       context: ./client/kanban
       dockerfile: Dockerfile
+      args:
+        ANGULAR_API_URL: ${ANGULAR_API_URL:-https://your-domain.com}
     ports:
-      - "80:80"
-      - "443:443"
+      - "${CLIENT_PORT:-80}:80"
+      - "${CLIENT_HTTPS_PORT:-443}:443"
     depends_on:
       - server
     networks:

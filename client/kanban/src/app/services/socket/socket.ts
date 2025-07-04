@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Collaborator {
   id: string;
@@ -26,7 +27,7 @@ export interface BoardEvent {
 })
 export class SocketService {
   private socket: Socket | null = null;
-  private readonly serverUrl = 'http://localhost:2000';
+  private readonly serverUrl = environment.APP_URL;
   
   private collaboratorsSubject = new BehaviorSubject<Collaborator[]>([]);
   private boardUpdatesSubject = new Subject<BoardEvent>();

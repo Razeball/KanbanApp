@@ -4,31 +4,33 @@ services:
   database:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: kanban_prod
-      POSTGRES_USER: kanban_user
-      POSTGRES_PASSWORD: kanban_password
+      POSTGRES_DB: ${DB_NAME:-kanban_prod}
+      POSTGRES_USER: ${DB_USERNAME:-kanban_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kanban_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kanban_user -d kanban_prod"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-kanban_user} -d ${DB_NAME:-kanban_prod}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   server:
     build: ./server
     environment:
-      NODE_ENV: production
-      DB_USERNAME: kanban_user
-      DB_PASSWORD: kanban_password
-      DB_NAME: kanban_prod
-      HOST: database
-      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
-      PORT: 3000
+      NODE_ENV: ${NODE_ENV:-production}
+      DB_USERNAME: ${DB_USERNAME:-kanban_user}
+      DB_PASSWORD: ${DB_PASSWORD:-kanban_password}
+      DB_NAME: ${DB_NAME:-kanban_prod}
+      HOST: ${DB_HOST:-database}
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      PORT: ${PORT:-3000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4200}
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
     depends_on:
       database:
         condition: service_healthy
@@ -36,13 +38,18 @@ services:
       - ./server:/app
       - /app/node_modules
     command: sh -c "npm run migrate && npm start"
+    restart: unless-stopped
 
   client:
-    build: ./client/kanban
+    build: 
+      context: ./client/kanban
+      args:
+        ANGULAR_API_URL: ${ANGULAR_API_URL:-http://localhost:3000}
     ports:
-      - "80:80"
+      - "${CLIENT_PORT:-80}:80"
     depends_on:
       - server
+    restart: unless-stopped
 
 volumes:
   postgres_data: 

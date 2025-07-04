@@ -6,9 +6,13 @@ import db from "./models/database.js";
 dotenv.config();
 
 const httpServer = createServer(app);
+
+const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:4200";
+const allowedOrigins = corsOrigin.split(",").map((origin) => origin.trim());
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CORS_ORIGIN || "http://localhost:4200",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -155,8 +159,8 @@ io.on("connection", (socket) => {
 
 const main = async () => {
   try {
-    httpServer.listen(process.env.PORT || 2000, () => {
-      console.log("Server listening on port", process.env.PORT || 2000);
+    httpServer.listen(process.env.PORT || 3000, () => {
+      console.log("Server listening on port", process.env.PORT || 3000);
     });
   } catch (error) {
     console.error(error);
